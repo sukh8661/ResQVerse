@@ -1,0 +1,486 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS Custom Properties - Root Variables */
+:root {
+  /* Light Theme Colors */
+  --background: 210 40% 98%;
+  --foreground: 222 84% 5%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 84% 5%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 84% 5%;
+  --primary: 0 72% 51%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 25 95% 53%;
+  --secondary-foreground: 222 84% 5%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 217 91% 60%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62% 30%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 0 72% 51%;
+  --radius: 0.5rem;
+
+  /* Emergency Theme Colors */
+  --emergency-red: 0 72% 51%;
+  --emergency-orange: 25 95% 53%;
+  --emergency-blue: 217 91% 60%;
+  --emergency-green: 142 71% 45%;
+  --emergency-yellow: 45 93% 47%;
+  --emergency-purple: 262 71% 58%;
+  --warning-amber: 38 92% 50%;
+  --success-green: 142 76% 36%;
+  --disaster-crimson: 348 83% 47%;
+}
+
+.dark {
+  /* Dark Theme Colors */
+  --background: 222 84% 5%;
+  --foreground: 210 40% 98%;
+  --card: 222 84% 8%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222 84% 8%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 0 72% 51%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 25 95% 53%;
+  --secondary-foreground: 222 84% 5%;
+  --muted: 217 32% 17%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 217 91% 60%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62% 50%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217 32% 17%;
+  --input: 217 32% 17%;
+  --ring: 0 72% 51%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+
+  /* Typography Enhancements */
+  h1 {
+    @apply text-4xl font-bold text-foreground tracking-tight;
+  }
+
+  h2 {
+    @apply text-3xl font-semibold text-foreground tracking-tight;
+  }
+
+  h3 {
+    @apply text-2xl font-semibold text-foreground;
+  }
+
+  h4 {
+    @apply text-xl font-medium text-foreground;
+  }
+
+  p {
+    @apply text-base text-muted-foreground leading-7;
+  }
+
+  /* Links */
+  a {
+    @apply text-primary hover:text-primary/80 transition-colors;
+  }
+
+  /* Focus states */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Mobile responsive typography */
+  @media (max-width: 768px) {
+    h1 {
+      @apply text-3xl;
+    }
+
+    h2 {
+      @apply text-2xl;
+    }
+
+    h3 {
+      @apply text-xl;
+    }
+
+    h4 {
+      @apply text-lg;
+    }
+
+    /* Touch targets */
+    button,
+    a,
+    input,
+    select,
+    textarea {
+      @apply min-h-[48px];
+    }
+  }
+}
+
+@layer components {
+  /* Emergency Gradients */
+  .gradient-emergency {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--emergency-red)),
+      hsl(var(--emergency-orange))
+    );
+  }
+
+  .gradient-relief {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--emergency-blue)),
+      hsl(var(--emergency-green))
+    );
+  }
+
+  .gradient-warning {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--warning-amber)),
+      hsl(var(--emergency-yellow))
+    );
+  }
+
+  /* --- NGO DASHBOARD GRADIENT HELPERS (added) --- */
+  .bg-gradient-primary {
+    @apply bg-gradient-to-r from-gradient-primary-from to-gradient-primary-to;
+  }
+
+  .bg-gradient-success {
+    @apply bg-gradient-to-r from-emerald-500 to-green-500;
+  }
+  /* ----------------------------------------------- */
+
+  /* Button Styles */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-200;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/90 px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-200;
+  }
+
+  .btn-emergency {
+    @apply bg-red-600 text-white hover:bg-red-700 px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200;
+  }
+
+  /* Card Styles */
+  .card {
+    @apply bg-card text-card-foreground border border-border rounded-lg shadow-sm;
+  }
+
+  .card-emergency {
+    @apply bg-card text-card-foreground border-2 border-red-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300;
+    background: linear-gradient(
+      135deg,
+      rgba(239, 68, 68, 0.05),
+      rgba(251, 146, 60, 0.05)
+    );
+  }
+
+  /* Status Indicators */
+  .status-critical {
+    @apply bg-red-50 text-red-800 border border-red-200 px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  .status-warning {
+    @apply bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  .status-safe {
+    @apply bg-green-50 text-green-800 border border-green-200 px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  .status-info {
+    @apply bg-blue-50 text-blue-800 border border-blue-200 px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  /* Form Elements */
+  .input {
+    @apply bg-background border border-input rounded-md px-3 py-2 text-sm ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .select {
+    @apply bg-background border border-input rounded-md px-3 py-2 text-sm ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  }
+
+  /* Navigation */
+  .nav-link {
+    @apply text-foreground hover:text-primary transition-colors duration-200 font-medium;
+  }
+
+  .nav-link-active {
+    @apply text-primary font-semibold;
+  }
+
+  /* Alert Components */
+  .alert {
+    @apply border border-border rounded-lg p-4;
+  }
+
+  .alert-error {
+    @apply bg-red-50 border-red-200 text-red-800;
+  }
+
+  .alert-warning {
+    @apply bg-amber-50 border-amber-200 text-amber-800;
+  }
+
+  .alert-success {
+    @apply bg-green-50 border-green-200 text-green-800;
+  }
+
+  .alert-info {
+    @apply bg-blue-50 border-blue-200 text-blue-800;
+  }
+
+  /* Loading States */
+  .loading-spinner {
+    @apply animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full;
+  }
+
+  /* Emergency Specific Components */
+  .emergency-banner {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--emergency-red)),
+      hsl(var(--disaster-crimson))
+    );
+    @apply text-white px-4 py-2 text-center font-semibold;
+  }
+
+  .donation-card {
+    @apply bg-card border border-border rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300;
+  }
+
+  .progress-bar {
+    @apply bg-muted rounded-full h-2 overflow-hidden;
+  }
+
+  .progress-fill {
+    @apply bg-primary h-full rounded-full transition-all duration-500;
+  }
+}
+
+@layer utilities {
+  /* Custom Animations */
+  .animate-pulse-slow {
+    animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-bounce-slow {
+    animation: bounce-slow 2s infinite;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.5s ease-out;
+  }
+
+  /* Emergency Utilities */
+  .emergency-pulse {
+    animation: emergency-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .text-shadow {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Responsive Utilities */
+  .container-responsive {
+    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+
+  .grid-responsive {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+
+  .flex-responsive {
+    @apply flex flex-col sm:flex-row gap-4 items-center;
+  }
+
+  /* --- NGO DASHBOARD STATUS BACKGROUNDS (added) --- */
+  .bg-danger\/10 {
+    background-color: rgb(239 68 68 / 0.1);
+  }
+
+  .bg-warning\/10 {
+    background-color: rgb(245 158 11 / 0.1);
+  }
+
+  .bg-success\/10 {
+    background-color: rgb(34 197 94 / 0.1);
+  }
+
+  .bg-info\/10 {
+    background-color: rgb(59 130 246 / 0.1);
+  }
+  /* ------------------------------------------------- */
+}
+
+/* Keyframe Animations */
+@keyframes pulse-slow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes bounce-slow {
+  0%,
+  100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes emergency-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+  }
+}
+
+/* Dark mode specific adjustments */
+.dark {
+  color-scheme: dark;
+}
+
+.dark .card-emergency {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.1),
+    rgba(251, 146, 60, 0.1)
+  );
+  border-color: rgb(239 68 68 / 0.3);
+}
+
+.dark .status-critical {
+  @apply bg-red-900/20 text-red-200 border-red-800;
+}
+
+.dark .status-warning {
+  @apply bg-amber-900/20 text-amber-200 border-amber-800;
+}
+
+.dark .status-safe {
+  @apply bg-green-900/20 text-green-200 border-green-800;
+}
+
+.dark .status-info {
+  @apply bg-blue-900/20 text-blue-200 border-blue-800;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .container {
+    @apply px-4;
+  }
+
+  .donation-card {
+    @apply p-4;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-emergency {
+    @apply w-full justify-center;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .container {
+    @apply px-6;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    @apply px-8;
+  }
+}
+
+/* Print Styles */
+@media print {
+  body {
+    @apply text-black bg-white;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  :root {
+    --border: 0 0% 20%;
+    --ring: 0 0% 10%;
+  }
+}

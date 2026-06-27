@@ -1,8 +1,8 @@
-# AgniAid - Unified Disaster Relief Platform
+# ResQVerse - Unified Disaster Relief Platform
 
 ## Overview
 
-AgniAid is an offline-first disaster relief platform that connects survivors, volunteers, NGOs, and donors through AI-powered coordination and real-time communication. The platform enables emergency request submission, volunteer coordination, donation management, and campaign tracking to ensure no cry for help goes unheard during disaster situations.
+ResQVerse is an offline-first disaster relief platform that connects survivors, volunteers, NGOs, and donors through AI-powered coordination and real-time communication. The platform enables emergency request submission, volunteer coordination, donation management, and campaign tracking to ensure no cry for help goes unheard during disaster situations.
 
 ## User Preferences
 
@@ -10,8 +10,14 @@ Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
+### Folder Structure
+- **frontend/**: Vite React app, public assets, UI components, hooks, pages, and frontend config
+- **backend/**: Express API server with config, models, services, controllers, routes, middleware, and validators
+- **dist/**: Generated frontend production build output
+- **package.json**: Root scripts for running the frontend and backend servers together or separately
+
 ### Frontend Architecture
-- **Framework**: React with TypeScript using Vite as the build tool
+- **Framework**: React with JavaScript using Vite as the build tool
 - **Routing**: Wouter for client-side routing with pages for home, emergency requests, volunteer registration, donations, and dashboard
 - **UI Components**: Shadcn/ui component library built on Radix UI primitives with Tailwind CSS for styling
 - **State Management**: TanStack Query for server state management and caching
@@ -20,14 +26,14 @@ Preferred communication style: Simple, everyday language.
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js server framework
 - **API Design**: RESTful API endpoints with WebSocket support for real-time features
-- **Database Integration**: Drizzle ORM with PostgreSQL using Neon serverless database
-- **Storage Layer**: Abstracted storage interface for CRUD operations across all entities
+- **Database Integration**: MongoDB with Mongoose models
+- **Storage Layer**: Abstracted storage service for CRUD operations across all entities
+- **Code Organization**: Routes map URLs, controllers handle request/response, services handle business logic, models define MongoDB collections
 
 ### Data Storage Solutions
-- **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
-- **Schema Design**: Comprehensive schema covering users, emergency requests, volunteers, NGOs, donations, campaigns, and contact messages
-- **Session Management**: PostgreSQL session store using connect-pg-simple
-- **Migration System**: Drizzle Kit for database schema migrations
+- **Database**: MongoDB for users, emergency requests, volunteers, NGOs, donations, campaigns, contact messages, and verified payments
+- **Schema Design**: Mongoose models with shared Zod request validation
+- **Session Management**: Express-ready app structure for future session storage
 
 ### Authentication and Authorization
 - **User Roles**: Multi-role system supporting survivors, volunteers, NGOs, donors, and administrators
@@ -42,8 +48,7 @@ Preferred communication style: Simple, everyday language.
 ## External Dependencies
 
 ### Core Dependencies
-- **@neondatabase/serverless**: Serverless PostgreSQL database connection
-- **drizzle-orm**: Type-safe database ORM with PostgreSQL dialect
+- **mongoose**: MongoDB object modeling and database access
 - **@tanstack/react-query**: Server state management and caching
 
 ### UI and Styling
@@ -54,9 +59,8 @@ Preferred communication style: Simple, everyday language.
 
 ### Development Tools
 - **vite**: Fast development server and build tool
-- **typescript**: Type safety across the entire application
-- **tsx**: TypeScript execution for server development
 - **esbuild**: Fast JavaScript bundler for production builds
+- **concurrently**: Runs frontend and backend dev servers together from the root script
 
 ### Real-time Features
 - **ws**: WebSocket library for real-time communication
