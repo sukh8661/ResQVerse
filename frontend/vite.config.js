@@ -1,47 +1,31 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react()
+  ],
 
   resolve: {
     alias: {
-      "@": path.resolve(process.cwd(), "src"),
-      "@assets": path.resolve(process.cwd(), "src/photos"),
-    },
+      "@": path.resolve(__dirname, "src"),
+      "@assets": path.resolve(__dirname, "src/photos")
+    }
   },
+
+  root: __dirname,
 
   build: {
     outDir: "dist",
-    emptyOutDir: true,
+    emptyOutDir: true
   },
 
   css: {
-    postcss: path.resolve(process.cwd(), "postcss.config.js"),
-  },
-
-  server: {
-    port: 5173,
-    host: true,
-
-    proxy: {
-      "/api": {
-        target:
-          process.env.VITE_API_URL ||
-          "http://127.0.0.1:5000",
-        changeOrigin: true,
-        secure: false,
-      },
-
-      "/ws": {
-        target:
-          process.env.VITE_API_URL ||
-          "ws://127.0.0.1:5000",
-        ws: true,
-        changeOrigin: true,
-        secure: false,
-      },
-    },
-  },
+    postcss: path.resolve(__dirname, "postcss.config.js")
+  }
 });
