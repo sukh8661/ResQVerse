@@ -1,5 +1,9 @@
 function createWebSocketConnection() {
-  const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
+  const productionApiBaseUrl = "https://resqverse-2ql0.onrender.com";
+  const apiBaseUrl = (
+    import.meta.env.VITE_API_BASE_URL ||
+    (import.meta.env.PROD ? productionApiBaseUrl : "")
+  ).replace(/\/$/, "");
   const baseUrl = apiBaseUrl || window.location.origin;
   const wsUrl = `${baseUrl.replace(/^https:/, "wss:").replace(/^http:/, "ws:")}/ws`;
   const socket = new WebSocket(wsUrl);

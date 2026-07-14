@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
 import { useI18n } from "@/lib/i18n";
+import rescueeImage from "@/photos/rescuee.jpg";
 function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { t } = useI18n();
@@ -10,7 +11,7 @@ function Hero() {
       title: t("hero_title"),
       subtitle: t("hero_subtitle"),
       background: "bg-black/60",
-      image: "/src/photos/rescuee.jpg"
+      image: rescueeImage
     },
     {
       title: t("hero_title"),

@@ -3,6 +3,7 @@ import DonationForm from "@/components/donation-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Heart, Shield, Clock, Award, Trophy, Building, CheckCircle } from "lucide-react";
+import heroBackground from "@/photos/hero-background.png";
 
 function formatInr(amount) {
   return `Rs ${Number(amount || 0).toLocaleString()}`;
@@ -38,7 +39,7 @@ export default function Donate() {
         <section className="relative overflow-hidden shadow-2xl py-10">
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: "url('../src/photos/hero-background.png')", filter: "blur(1px) brightness(1)", transform: "scale(1.1)" }}
+            style={{ backgroundImage: `url(${heroBackground})`, filter: "blur(1px) brightness(1)", transform: "scale(1.1)" }}
           />
           <div className="absolute inset-0 bg-black/25" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-black/20 to-black/30" />

@@ -12,6 +12,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import { Link } from "wouter";
+import logo from "@/photos/Rescue_Logo.jpg";
 function Footer() {
   const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
   const quickLinks = [
@@ -55,7 +56,7 @@ function Footer() {
               <div className="flex items-center space-x-3 mb-6">
                 
                   <img
-    src="../src/photos/Rescue_Logo.jpg"
+    src={logo}
     alt="ResQVerse Logo"
     className="h-10 w-10 rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105"
   />

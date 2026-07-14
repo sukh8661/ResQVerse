@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import logo from "@/photos/Rescue_Logo.jpg";
 function Header() {
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
@@ -106,7 +107,7 @@ function Header() {
             <Link href="/" className="flex items-center space-x-3 group">
               <div className="relative">
                 <img
-    src="../src/photos/Rescue_Logo.jpg"
+    src={logo}
     alt="ResQVerse Logo"
     className="h-10 w-10 rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105"
   />
@@ -212,7 +213,7 @@ function Header() {
                   <div className="flex items-center justify-between py-4 border-b border-gray-200 dark:border-gray-800">
                     <div className="flex items-center space-x-3">
                       <img
-    src="/Rescue_Logo.jpg"
+    src={logo}
     alt="ResQVerse Logo"
     className="h-8 w-8 rounded-lg shadow-sm"
   />

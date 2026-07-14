@@ -1,7 +1,11 @@
 import { QueryClient } from "@tanstack/react-query";
 import { getAuthToken } from "@/lib/auth";
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
+const PRODUCTION_API_BASE_URL = "https://resqverse-2ql0.onrender.com";
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.PROD ? PRODUCTION_API_BASE_URL : "")
+).replace(/\/$/, "");
 
 function apiUrl(url) {
   if (!API_BASE_URL || /^https?:\/\//i.test(url)) return url;

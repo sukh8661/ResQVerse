@@ -29,6 +29,8 @@ import {
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useI18n } from "../lib/i18n";
+import logo from "@/photos/Rescue_Logo.jpg";
+import homeHeroImage from "@/photos/rescuee.jpg";
 function Home() {
   const { t } = useI18n();
   const { data: recentDonations } = useQuery({
@@ -107,7 +109,7 @@ function Home() {
       <div className="svg flex items-center justify-center fixed top-0 left-0 z-[100] w-full h-screen overflow-hidden bg-[#FFFFFF]">
         <img
     className="rescuelogo"
-    src="/Rescue_Logo.jpg"
+    src={logo}
     alt="Rescue Logo"
     style={{
       width: "50%",
@@ -128,7 +130,7 @@ function Home() {
   }
             <div
     className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-    style={{ backgroundImage: "url('../src/photos/rescuee.jpg')" }}
+    style={{ backgroundImage: `url(${homeHeroImage})` }}
   />
 
             {
