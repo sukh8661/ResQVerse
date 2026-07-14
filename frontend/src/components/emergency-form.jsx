@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, apiUrl } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 const GEOAPIFY_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY || "9674b0ca033b4f2993529b9c0166f60b";
@@ -111,7 +111,7 @@ async function submitEmergencyRequest(data) {
     });
     form.append("audio", data.audioBlob, `emergency-${Date.now()}.webm`);
 
-    const response = await fetch("/api/emergency-requests", {
+    const response = await fetch(apiUrl("/api/emergency-requests"), {
       method: "POST",
       body: form,
       credentials: "include"

@@ -27,5 +27,16 @@ export default defineConfig({
 
   css: {
     postcss: path.resolve(__dirname, "postcss.config.js")
+  },
+
+  server: {
+    host: "127.0.0.1",
+    port: 5173,
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:5000",
+        changeOrigin: true
+      }
+    }
   }
 });

@@ -2,6 +2,7 @@ import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
+  blocklist: [],
   content: {
     relative: true,
     files: ["./index.html", "./src/**/*.{js,jsx}"]

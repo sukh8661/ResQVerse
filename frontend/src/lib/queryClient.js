@@ -1,5 +1,13 @@
 import { QueryClient } from "@tanstack/react-query";
 import { getAuthToken } from "@/lib/auth";
+
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
+
+function apiUrl(url) {
+  if (!API_BASE_URL || /^https?:\/\//i.test(url)) return url;
+  return `${API_BASE_URL}${url.startsWith("/") ? url : `/${url}`}`;
+}
+
 async function throwIfResNotOk(res) {
   if (!res.ok) {
     const text = await res.text() || res.statusText;
@@ -7,7 +15,7 @@ async function throwIfResNotOk(res) {
   }
 }
 async function apiRequest(method, url, data) {
-  const res = await fetch(url, {
+  const res = await fetch(apiUrl(url), {
     method,
     headers: {
       ...(data ? { "Content-Type": "application/json" } : {}),
@@ -20,7 +28,7 @@ async function apiRequest(method, url, data) {
   return res;
 }
 const getQueryFn = ({ on401: unauthorizedBehavior }) => async ({ queryKey }) => {
-  const res = await fetch(queryKey.join("/"), {
+  const res = await fetch(apiUrl(queryKey.join("/")), {
     headers: getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {},
     credentials: "include"
   });
@@ -45,6 +53,7 @@ const queryClient = new QueryClient({
   }
 });
 export {
+  apiUrl,
   apiRequest,
   getQueryFn,
   queryClient

@@ -1,6 +1,7 @@
 function createWebSocketConnection() {
-  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-  const wsUrl = `${protocol}//${window.location.host}/ws`;
+  const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
+  const baseUrl = apiBaseUrl || window.location.origin;
+  const wsUrl = `${baseUrl.replace(/^https:/, "wss:").replace(/^http:/, "ws:")}/ws`;
   const socket = new WebSocket(wsUrl);
   socket.onopen = () => {
     console.log("Connected to WebSocket");
