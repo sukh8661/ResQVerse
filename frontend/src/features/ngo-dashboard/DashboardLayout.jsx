@@ -36,7 +36,7 @@ export function DashboardLayout({ children }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 pt-16 text-slate-950">
+    <div className="min-h-screen bg-slate-100 text-slate-950">
       <div className="flex">
         <AppSidebar />
 
@@ -51,7 +51,7 @@ export function DashboardLayout({ children }) {
                         <Menu className="h-4 w-4" />
                       </Button>
                     </SheetTrigger>
-                    <SheetContent side="left" className="w-80 bg-white p-0">
+                    <SheetContent side="left" className="w-[min(20rem,calc(100vw-1rem))] bg-white p-0">
                       <div className="border-b border-slate-100 p-5">
                         <p className="text-sm font-semibold text-slate-500">NGO command</p>
                         <h2 className="text-xl font-black text-slate-950">{organizationName}</h2>
@@ -70,15 +70,15 @@ export function DashboardLayout({ children }) {
                     </SheetContent>
                   </Sheet>
 
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-sm font-semibold uppercase tracking-wide text-red-700">NGO operations center</p>
-                    <h1 className="text-3xl font-black text-slate-950">{organizationName}</h1>
+                    <h1 className="safe-break text-2xl font-black text-slate-950 sm:text-3xl">{organizationName}</h1>
                     <p className="mt-1 text-slate-500">Accept requests, assign volunteers, manage resources, and track funds from one workspace.</p>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <div className="hidden h-11 min-w-72 items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-500 md:flex">
+                  <div className="hidden h-11 w-full max-w-72 items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-500 md:flex">
                     <Search className="h-4 w-4" />
                     Live relief operations
                   </div>
@@ -93,10 +93,10 @@ export function DashboardLayout({ children }) {
                 </div>
               </div>
 
-              <div className="mt-5 flex flex-wrap gap-2 lg:hidden">
+              <div className="mobile-scrollbar -mx-1 mt-5 flex gap-2 overflow-x-auto px-1 pb-1 lg:hidden">
                 {ngoNavItems.map((item) => (
                   <Link key={item.href} href={item.href}>
-                    <Button variant={isActive(location, item.href) ? "default" : "outline"} size="sm" className="rounded-2xl">
+                    <Button variant={isActive(location, item.href) ? "default" : "outline"} size="sm" className="shrink-0 rounded-2xl">
                       <item.icon className="mr-2 h-4 w-4" />
                       {item.label}
                     </Button>

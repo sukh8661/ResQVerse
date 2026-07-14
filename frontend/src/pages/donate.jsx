@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import DonationForm from "@/components/donation-form";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Shield, Clock, Award, Trophy, Building, CheckCircle } from "lucide-react";
+import { Heart, Shield, Clock, Award, Trophy, Building, CheckCircle, ArrowRight } from "lucide-react";
 import heroBackground from "@/photos/hero-background.png";
 
 function formatInr(amount) {
@@ -35,8 +37,8 @@ export default function Donate() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
-      <div className="pt-16 space-y-12">
-        <section className="relative overflow-hidden shadow-2xl py-10">
+      <div className="space-y-8 sm:space-y-12">
+        <section className="relative overflow-hidden py-8 shadow-2xl sm:py-10">
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{ backgroundImage: `url(${heroBackground})`, filter: "blur(1px) brightness(1)", transform: "scale(1.1)" }}
@@ -44,39 +46,39 @@ export default function Donate() {
           <div className="absolute inset-0 bg-black/25" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-black/20 to-black/30" />
 
-          <div className="relative text-center py-16 px-8 text-white">
+          <div className="relative px-4 pb-12 pt-28 text-center text-white sm:px-8 sm:pb-16 sm:pt-32">
             <div className="p-4 mb-6 bg-white/35 rounded-full shadow-2xl backdrop-blur-md border border-white/40 inline-flex">
               <Heart className="h-12 w-12 text-white drop-shadow-2xl" />
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-2 drop-shadow-2xl text-white">
+            <h1 className="mb-2 text-3xl font-bold leading-tight text-white drop-shadow-2xl sm:text-4xl md:text-6xl">
               Transform Lives Through Giving
             </h1>
-            <p className="text-xl text-white font-medium drop-shadow-xl">
+            <p className="text-base font-medium text-white drop-shadow-xl sm:text-xl">
               Every number below reflects live relief activity.
             </p>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 max-w-5xl mx-auto">
-              <div className="bg-white/20 backdrop-blur-lg p-6 rounded-2xl border border-white/40">
-                <div className="text-3xl font-bold text-white mb-2">{formatInr(overview.totalDonationAmount)}</div>
+            <div className="mx-auto mt-10 grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 md:gap-6">
+              <div className="hero-glass-card hero-glass-green rounded-2xl p-6">
+                <div className="safe-break mb-2 text-2xl font-bold text-white lg:text-3xl">{formatInr(overview.totalDonationAmount)}</div>
                 <p className="text-white font-medium text-sm">Total Donations</p>
               </div>
-              <div className="bg-white/20 backdrop-blur-lg p-6 rounded-2xl border border-white/40">
-                <div className="text-3xl font-bold text-white mb-2">{overview.donations || donations.length}</div>
+              <div className="hero-glass-card hero-glass-blue rounded-2xl p-6">
+                <div className="mb-2 text-2xl font-bold text-white lg:text-3xl">{overview.donations || donations.length}</div>
                 <p className="text-white font-medium text-sm">Donation Records</p>
               </div>
-              <div className="bg-white/20 backdrop-blur-lg p-6 rounded-2xl border border-white/40">
-                <div className="text-3xl font-bold text-white mb-2">{formatInr(overview.allocatedAmount)}</div>
+              <div className="hero-glass-card hero-glass-amber rounded-2xl p-6">
+                <div className="safe-break mb-2 text-2xl font-bold text-white lg:text-3xl">{formatInr(overview.allocatedAmount)}</div>
                 <p className="text-white font-medium text-sm">Allocated to NGOs</p>
               </div>
-              <div className="bg-white/20 backdrop-blur-lg p-6 rounded-2xl border border-white/40">
-                <div className="text-3xl font-bold text-white mb-2">{formatInr(overview.unallocatedAmount)}</div>
+              <div className="hero-glass-card hero-glass-red rounded-2xl p-6">
+                <div className="safe-break mb-2 text-2xl font-bold text-white lg:text-3xl">{formatInr(overview.unallocatedAmount)}</div>
                 <p className="text-white font-medium text-sm">Pending Allocation</p>
               </div>
             </div>
           </div>
         </section>
 
-        <div className="mx-auto max-w-7xl px-4 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 items-start gap-6 px-4 sm:gap-10 lg:grid-cols-12">
           <div className="lg:col-span-8">
             <DonationForm />
           </div>
@@ -94,7 +96,7 @@ export default function Donate() {
               </CardHeader>
               <CardContent className="px-5 py-8">
                 <div className="space-y-4">
-                  {donations.slice(0, 8).map((donation) => {
+                  {donations.slice(0, 4).map((donation) => {
                     const donorName = donation.isAnonymous ? "Anonymous" : donation.donorData?.name || "Donor";
                     return (
                       <div key={donation.id} className="w-full px-3 py-4 bg-gradient-to-r from-white to-orange-50 rounded-2xl border border-orange-100 shadow-lg">
@@ -118,12 +120,20 @@ export default function Donate() {
                   })}
                   {donations.length === 0 && <p className="text-center text-gray-500 py-8">No successful donations have been recorded yet.</p>}
                 </div>
+                {donations.length > 4 && (
+                  <Button asChild variant="outline" className="mt-5 w-full rounded-2xl border-orange-200 bg-white/80 font-bold text-orange-700 hover:bg-orange-50 hover:text-orange-800">
+                    <Link href="/records/donations">
+                      View all donations
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </div>
         </div>
 
-        <div className="mx-auto max-w-7xl px-4 grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 sm:gap-10 lg:grid-cols-2">
           <Card className="shadow-xl border-0 overflow-hidden bg-gradient-to-br from-white to-orange-50">
             <CardHeader className="bg-gray-100 text-gray-800 py-6 pl-8 border-b border-gray-200">
               <CardTitle className="flex items-center space-x-3 text-2xl">
@@ -135,7 +145,7 @@ export default function Donate() {
               <p className="text-gray-600 text-base mt-2">Verified partner NGOs available for direct support.</p>
             </CardHeader>
             <CardContent className="p-8 space-y-4">
-              {ngos.map((ngo) => (
+              {ngos.slice(0, 4).map((ngo) => (
                 <div key={ngo.id} className="w-full p-4 px-6 rounded-2xl shadow-lg border bg-gradient-to-r from-white to-orange-50 border-orange-100">
                   <div className="flex items-center space-x-4">
                     <div className="w-14 h-14 rounded-xl flex items-center justify-center text-lg font-bold shadow-lg bg-gradient-to-br from-orange-400 to-red-500 text-white">
@@ -152,6 +162,14 @@ export default function Donate() {
                 </div>
               ))}
               {ngos.length === 0 && <p className="text-gray-500">No verified NGO partners are available yet.</p>}
+              {ngos.length > 4 && (
+                <Button asChild variant="outline" className="w-full rounded-2xl border-orange-200 bg-white/80 font-bold text-orange-700 hover:bg-orange-50 hover:text-orange-800">
+                  <Link href="/records/ngos">
+                    View all NGO partners
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
             </CardContent>
           </Card>
 
@@ -166,7 +184,7 @@ export default function Donate() {
               <p className="text-gray-600 text-base mt-2">Recent fund allocations approved by coordinators.</p>
             </CardHeader>
             <CardContent className="p-8 space-y-4">
-              {allocations.slice(0, 8).map((allocation) => (
+              {allocations.slice(0, 4).map((allocation) => (
                 <div key={allocation.id} className="flex items-center justify-between rounded-2xl border border-orange-100 bg-white p-4 shadow-sm">
                   <div>
                     <div className="font-semibold">{allocation.purpose}</div>
@@ -176,11 +194,19 @@ export default function Donate() {
                 </div>
               ))}
               {allocations.length === 0 && <p className="text-gray-500">No fund allocations stored yet.</p>}
+              {allocations.length > 4 && (
+                <Button asChild variant="outline" className="w-full rounded-2xl border-orange-200 bg-white/80 font-bold text-orange-700 hover:bg-orange-50 hover:text-orange-800">
+                  <Link href="/records/allocations">
+                    View all allocations
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
             </CardContent>
           </Card>
         </div>
 
-        <section className="bg-gray-100 text-gray-800 p-12 text-center">
+        <section className="bg-gray-100 p-6 text-center text-gray-800 sm:p-12">
           <div className="max-w-4xl mx-auto">
             <h3 className="text-4xl font-bold mb-8">Your Security is Our Priority</h3>
             <div className="grid md:grid-cols-3 gap-8">

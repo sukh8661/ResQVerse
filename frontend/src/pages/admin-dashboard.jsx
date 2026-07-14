@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import {
   Activity,
+  ArrowUpRight,
   Building2,
   CheckCircle2,
   ClipboardCheck,
+  Clock,
   FileText,
   HandCoins,
   LayoutDashboard,
@@ -24,14 +26,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/queryClient";
 import { clearAuthSession, getAuthSession, setAuthSession } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
+import logo from "@/photos/Rescue_Logo_clean.png";
 
 const views = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "applications", label: "Applications", icon: ClipboardCheck },
   { id: "operations", label: "Operations Map", icon: MapPin },
+  { id: "fundRequests", label: "Fund Requests", icon: Clock },
   { id: "allocations", label: "Fund Allocation", icon: HandCoins },
   { id: "donations", label: "Donations", icon: WalletCards },
   { id: "ngos", label: "NGOs", icon: Building2 },
@@ -50,6 +55,7 @@ export default function AdminDashboard() {
   const [activeView, setActiveView] = useState("overview");
   const [allocation, setAllocation] = useState({ donationId: "", ngoId: "", amount: "", purpose: "" });
   const [selectedNgoByVolunteer, setSelectedNgoByVolunteer] = useState({});
+  const [reviewDrafts, setReviewDrafts] = useState({});
   const [profileForm, setProfileForm] = useState({
     fullName: session?.user?.fullName || "",
     phone: session?.user?.phone || "",
@@ -93,6 +99,8 @@ export default function AdminDashboard() {
   const requests = operations.requests || [];
   const volunteers = operations.volunteers || [];
   const resources = operations.resources || [];
+  const fundRequests = data?.fundRequests || operations.fundRequests || [];
+  const pendingFundRequests = fundRequests.filter((request) => request.status === "pending");
   const totalDonationAmount = Number(overview.totalDonationAmount || 0);
   const allocatedAmount = Number(overview.allocatedAmount || 0);
   const unallocatedAmount = Number(overview.unallocatedAmount || 0);
@@ -107,7 +115,37 @@ export default function AdminDashboard() {
     await apiRequest("POST", "/api/admin/allocations", allocation);
     setAllocation({ donationId: "", ngoId: "", amount: "", purpose: "" });
     queryClient.invalidateQueries({ queryKey: ["/api/admin/overview"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/admin/ngo-operations"] });
     toast({ title: "Funds allocated", description: "Allocation has been saved." });
+  };
+
+  const updateReviewDraft = (requestId, patch) => {
+    setReviewDrafts((current) => ({ ...current, [requestId]: { ...(current[requestId] || {}), ...patch } }));
+  };
+
+  const reviewFundRequest = async (request, decision) => {
+    const draft = reviewDrafts[request.id] || {};
+    const amountApproved = decision === "approve" ? request.amountRequested : draft.amountApproved;
+    if (decision !== "reject" && (!amountApproved || Number(amountApproved) <= 0)) {
+      toast({ title: "Amount required", description: "Enter an approved amount for this request.", variant: "destructive" });
+      return;
+    }
+    await apiRequest("PATCH", `/api/admin/fund-requests/${request.id}/review`, {
+      decision,
+      amountApproved: Number(amountApproved || 0),
+      adminNote: draft.adminNote || (decision === "approve"
+        ? "Full requested amount approved. We had enough relief funds available, so the complete request has been allocated."
+        : decision === "partial"
+          ? "Partial amount approved based on available relief funds."
+          : "Request could not be approved at this time.")
+    });
+    setReviewDrafts((current) => ({ ...current, [request.id]: {} }));
+    queryClient.invalidateQueries({ queryKey: ["/api/admin/overview"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/admin/ngo-operations"] });
+    toast({
+      title: decision === "reject" ? "Fund request rejected" : "Fund request reviewed",
+      description: decision === "approve" ? "Full amount allocated to the NGO." : decision === "partial" ? "Partial funds allocated with your note." : "Reason saved for the NGO."
+    });
   };
 
   const approveVolunteer = async (volunteerId) => {
@@ -154,6 +192,7 @@ export default function AdminDashboard() {
     { label: "NGOs", value: overview.ngos || 0, icon: Building2, tone: "bg-blue-50 text-blue-700" },
     { label: "Volunteers", value: overview.volunteers || 0, icon: Users, tone: "bg-emerald-50 text-emerald-700" },
     { label: "Pending", value: overview.pendingVolunteerApplications || applications.length || 0, icon: ShieldCheck, tone: "bg-amber-50 text-amber-700" },
+    { label: "Fund Requests", value: overview.pendingFundRequests || pendingFundRequests.length || 0, icon: Clock, tone: "bg-orange-50 text-orange-700" },
     { label: "Requests", value: overview.requests || requests.length || 0, icon: Activity, tone: "bg-red-50 text-red-700" },
     { label: "Unallocated", value: money(unallocatedAmount), icon: HandCoins, tone: "bg-purple-50 text-purple-700" }
   ];
@@ -161,20 +200,20 @@ export default function AdminDashboard() {
   const donationOptions = useMemo(() => donations.filter((donation) => Number(donation.amount || 0) > Number(donation.allocatedAmount || 0)), [donations]);
 
   return (
-    <div className="min-h-screen bg-slate-100 pt-16">
+    <div className="min-h-screen bg-slate-100">
       <div className="flex">
-        <aside className="fixed bottom-0 left-0 top-16 z-30 hidden w-72 border-r border-slate-200 bg-white lg:block">
+        <aside className="fixed bottom-0 left-0 top-0 z-30 hidden w-72 border-r border-slate-200 bg-white lg:block">
           <div className="flex h-full flex-col">
-            <div className="border-b border-slate-100 p-6">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-700">
-                  <ShieldCheck className="h-6 w-6" />
+            <div className="flex h-[136px] items-center border-b border-slate-100 px-6">
+              <Link href="/" className="group flex items-center gap-3">
+                <div className="-my-2 flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg">
+                  <img src={logo} alt="ResQVerse Logo" className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-slate-500">Command center</p>
-                  <h1 className="text-xl font-black text-slate-950">Admin Panel</h1>
+                  <h1 className="bg-gradient-to-r from-red-500 via-orange-500 to-red-600 bg-clip-text text-xl font-black leading-tight text-transparent">ResQVerse</h1>
+                  <p className="-mt-0.5 text-xs font-semibold text-slate-500">Unified Disaster Relief Platform</p>
                 </div>
-              </div>
+              </Link>
             </div>
 
             <nav className="flex-1 space-y-2 p-4">
@@ -189,6 +228,7 @@ export default function AdminDashboard() {
                   <item.icon className="h-5 w-5" />
                   {item.label}
                   {item.id === "applications" && applications.length > 0 && <Badge className="ml-auto bg-red-600">{applications.length}</Badge>}
+                  {item.id === "fundRequests" && pendingFundRequests.length > 0 && <Badge className="ml-auto bg-orange-600">{pendingFundRequests.length}</Badge>}
                 </button>
               ))}
             </nav>
@@ -208,12 +248,12 @@ export default function AdminDashboard() {
               <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                 <div>
                   <p className="text-sm font-semibold uppercase tracking-wide text-red-700">Platform command center</p>
-                  <h2 className="text-3xl font-black text-slate-950">Admin Dashboard</h2>
+                  <h2 className="text-2xl font-black text-slate-950 sm:text-3xl">Admin Dashboard</h2>
                   <p className="mt-1 text-slate-500">Approve volunteers, track live requests, allocate funds, and monitor partner NGOs.</p>
                 </div>
-                <div className="flex flex-wrap gap-2 lg:hidden">
+                <div className="mobile-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1 lg:hidden">
                   {views.map((item) => (
-                    <Button key={item.id} variant={activeView === item.id ? "default" : "outline"} size="sm" onClick={() => setActiveView(item.id)}>
+                    <Button key={item.id} variant={activeView === item.id ? "default" : "outline"} size="sm" className="shrink-0 rounded-2xl" onClick={() => setActiveView(item.id)}>
                       {item.label}
                     </Button>
                   ))}
@@ -225,7 +265,7 @@ export default function AdminDashboard() {
           <section className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
             {activeView === "overview" && (
               <>
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
                   {metrics.map((metric) => (
                     <Card key={metric.label} className="rounded-3xl border-slate-200 shadow-sm">
                       <CardContent className="p-5">
@@ -274,6 +314,7 @@ export default function AdminDashboard() {
 
             {activeView === "applications" && <ApplicationsPanel applications={applications} ngos={ngos} selectedNgoByVolunteer={selectedNgoByVolunteer} setSelectedNgoByVolunteer={setSelectedNgoByVolunteer} approveVolunteer={approveVolunteer} />}
             {activeView === "operations" && <OperationsPanel requests={requests} volunteers={volunteers} resources={resources} />}
+            {activeView === "fundRequests" && <FundRequestsPanel fundRequests={fundRequests} reviewDrafts={reviewDrafts} updateReviewDraft={updateReviewDraft} reviewFundRequest={reviewFundRequest} />}
             {activeView === "allocations" && <AllocationPanel allocation={allocation} setAllocation={setAllocation} submitAllocation={submitAllocation} donations={donationOptions} ngos={ngos} allocations={allocations} />}
             {activeView === "donations" && <DonationsPanel donations={donations} />}
             {activeView === "ngos" && <NgosPanel ngos={ngos} verifyNgo={verifyNgo} />}
@@ -312,18 +353,18 @@ function ApplicationsPanel({ applications, ngos, selectedNgoByVolunteer, setSele
       <CardContent className="grid gap-4 xl:grid-cols-2">
         {applications.map((application) => (
           <div key={application.id} className="rounded-3xl border border-slate-200 bg-white p-5">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-lg font-black text-slate-950">{application.user?.fullName || "Volunteer applicant"}</h3>
-                <p className="text-sm text-slate-500">{application.user?.email || application.user?.phone || "No contact saved"}</p>
-                <p className="mt-1 text-sm text-slate-600">{application.location || application.address || "Location not provided"}</p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+              <div className="min-w-0">
+                <h3 className="safe-break text-lg font-black text-slate-950">{application.user?.fullName || "Volunteer applicant"}</h3>
+                <p className="safe-break text-sm text-slate-500">{application.user?.email || application.user?.phone || "No contact saved"}</p>
+                <p className="safe-break mt-1 text-sm text-slate-600">{application.location || application.address || "Location not provided"}</p>
               </div>
-              <Badge variant="outline" className="capitalize">{application.verificationStatus}</Badge>
+              <Badge variant="outline" className="w-fit capitalize">{application.verificationStatus}</Badge>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               {(application.skills || []).slice(0, 4).map((skill) => <Badge key={skill} variant="secondary">{skill.replaceAll("_", " ")}</Badge>)}
             </div>
-            <div className="mt-4 grid gap-3 md:grid-cols-[1fr_auto]">
+            <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
               <Select
                 value={selectedNgoByVolunteer[application.id]}
                 onValueChange={(value) => setSelectedNgoByVolunteer((current) => ({ ...current, [application.id]: value }))}
@@ -350,10 +391,117 @@ function OperationsPanel({ requests, volunteers, resources }) {
     <div className="space-y-6">
       <RequestLocationMap title="Platform Live Request Locations" requests={requests} height={430} />
       <div className="grid gap-6 xl:grid-cols-3">
-        <ListCard title="Recent Requests" items={requests.slice(0, 8)} render={(request) => <span>{request.title || request.type} <Badge className="ml-2 capitalize">{request.status}</Badge></span>} />
-        <ListCard title="Volunteer Network" items={volunteers.slice(0, 8)} render={(volunteer) => <span>{volunteer.user?.fullName || "Volunteer"} <Badge className="ml-2 capitalize">{volunteer.status}</Badge></span>} />
-        <ListCard title="Resources" items={resources.slice(0, 8)} render={(resource) => <span>{resource.type} <span className="text-slate-500">({resource.available || 0} {resource.unit})</span></span>} />
+        <ListCard title="Recent Requests" items={requests} viewAllHref="/records/requests" render={(request) => <span>{request.title || request.type} <Badge className="ml-2 capitalize">{request.status}</Badge></span>} />
+        <ListCard title="Volunteer Network" items={volunteers} viewAllHref="/records/volunteers" render={(volunteer) => <span>{volunteer.user?.fullName || "Volunteer"} <Badge className="ml-2 capitalize">{volunteer.status}</Badge></span>} />
+        <ListCard title="Resources" items={resources} viewAllHref="/records/resources" render={(resource) => <span>{resource.type} <span className="text-slate-500">({resource.available || 0} {resource.unit})</span></span>} />
       </div>
+    </div>
+  );
+}
+
+function requestStatusClass(status) {
+  if (status === "approved") return "bg-emerald-100 text-emerald-700";
+  if (status === "partially_approved") return "bg-amber-100 text-amber-700";
+  if (status === "rejected") return "bg-red-100 text-red-700";
+  return "bg-slate-100 text-slate-700";
+}
+
+function FundRequestsPanel({ fundRequests, reviewDrafts, updateReviewDraft, reviewFundRequest }) {
+  const pending = fundRequests.filter((request) => request.status === "pending");
+  const reviewed = fundRequests.filter((request) => request.status !== "pending");
+  return (
+    <div className="space-y-6">
+      <Card className="rounded-3xl border-slate-200 shadow-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5 text-orange-600" />
+            NGO Fund Requests
+            {pending.length > 0 && <Badge className="bg-orange-600">{pending.length} pending</Badge>}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {pending.map((request) => {
+            const draft = reviewDrafts[request.id] || {};
+            return (
+              <div key={request.id} className="rounded-3xl border border-orange-100 bg-orange-50/40 p-5">
+                <div className="grid gap-4 xl:grid-cols-[1fr_360px]">
+                  <div>
+                    <div className="mb-3 flex flex-wrap gap-2">
+                      <Badge className="bg-slate-950">Pending review</Badge>
+                      <Badge variant="outline" className="capitalize">{request.urgency}</Badge>
+                    </div>
+                    <h3 className="text-lg font-black text-slate-950">{request.purpose}</h3>
+                    <p className="mt-1 text-sm font-semibold text-slate-600">{request.ngo?.organizationName || "NGO partner"}</p>
+                    <p className="mt-3 text-sm leading-6 text-slate-600">{request.details || "No additional details provided."}</p>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      <InfoPill label="Requested" value={money(request.amountRequested)} />
+                      <InfoPill label="Requested on" value={new Date(request.createdAt).toLocaleDateString()} />
+                    </div>
+                  </div>
+                  <div className="space-y-3 rounded-3xl border border-white bg-white p-4 shadow-sm">
+                    <div>
+                      <Label>Approved amount</Label>
+                      <Input
+                        className="mt-2 h-11 rounded-2xl"
+                        type="number"
+                        min="1"
+                        max={request.amountRequested}
+                        placeholder={`${request.amountRequested}`}
+                        value={draft.amountApproved || ""}
+                        onChange={(event) => updateReviewDraft(request.id, { amountApproved: event.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label>Admin note / reason</Label>
+                      <Textarea
+                        className="mt-2 min-h-24 rounded-2xl"
+                        placeholder="Tell NGO why full/partial/rejected funds were decided."
+                        value={draft.adminNote || ""}
+                        onChange={(event) => updateReviewDraft(request.id, { adminNote: event.target.value })}
+                      />
+                    </div>
+                    <div className="grid gap-2 sm:grid-cols-3">
+                      <Button className="rounded-2xl bg-emerald-600 hover:bg-emerald-700" onClick={() => reviewFundRequest(request, "approve")}>
+                        Full
+                      </Button>
+                      <Button variant="outline" className="rounded-2xl border-amber-200 text-amber-700 hover:bg-amber-50" onClick={() => reviewFundRequest(request, "partial")}>
+                        Partial
+                      </Button>
+                      <Button variant="outline" className="rounded-2xl border-red-200 text-red-700 hover:bg-red-50" onClick={() => reviewFundRequest(request, "reject")}>
+                        Reject
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          {pending.length === 0 && <p className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500">No pending NGO fund requests right now.</p>}
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-3xl border-slate-200 shadow-sm">
+        <CardHeader><CardTitle>Reviewed Requests</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          {reviewed.map((request) => (
+            <div key={request.id} className="grid gap-4 rounded-3xl border border-slate-200 bg-white p-5 md:grid-cols-[1fr_auto]">
+              <div>
+                <div className="mb-2 flex flex-wrap gap-2">
+                  <Badge className={requestStatusClass(request.status)}>{request.status.replaceAll("_", " ")}</Badge>
+                  <Badge variant="outline">{request.ngo?.organizationName || "NGO"}</Badge>
+                </div>
+                <h3 className="font-bold text-slate-950">{request.purpose}</h3>
+                <p className="mt-1 text-sm text-slate-500">{request.adminNote || "No admin note saved."}</p>
+              </div>
+              <div className="text-left md:text-right">
+                <p className="text-sm text-slate-500">Requested {money(request.amountRequested)}</p>
+                <p className="text-lg font-black text-emerald-700">Approved {money(request.amountApproved)}</p>
+              </div>
+            </div>
+          ))}
+          {reviewed.length === 0 && <p className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500">Reviewed decisions will appear here.</p>}
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -386,13 +534,13 @@ function AllocationPanel({ allocation, setAllocation, submitAllocation, donation
         </CardContent>
       </Card>
 
-      <ListCard title="Recent Allocations" items={allocations.slice(0, 12)} render={(allocationItem) => <span>{money(allocationItem.amount)} <span className="text-slate-500">for {allocationItem.purpose}</span></span>} />
+      <ListCard title="Recent Allocations" items={allocations} viewAllHref="/records/allocations" render={(allocationItem) => <span>{money(allocationItem.amount)} <span className="text-slate-500">for {allocationItem.purpose}</span></span>} />
     </div>
   );
 }
 
 function DonationsPanel({ donations }) {
-  return <ListCard title="Recent Donations" items={donations} render={(donation) => <span>{donation.isAnonymous ? "Anonymous" : donation.donorData?.name || "Donor"} donated <strong>{money(donation.amount)}</strong> <span className="text-slate-500">for {donation.donationType || "relief"}</span></span>} />;
+  return <ListCard title="Recent Donations" items={donations} viewAllHref="/records/donations" render={(donation) => <span>{donation.isAnonymous ? "Anonymous" : donation.donorData?.name || "Donor"} donated <strong>{money(donation.amount)}</strong> <span className="text-slate-500">for {donation.donationType || "relief"}</span></span>} />;
 }
 
 function NgosPanel({ ngos, verifyNgo }) {
@@ -401,10 +549,10 @@ function NgosPanel({ ngos, verifyNgo }) {
       {ngos.map((ngo) => (
         <Card key={ngo.id} className="rounded-3xl border-slate-200 shadow-sm">
           <CardContent className="p-5">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="font-black text-slate-950">{ngo.organizationName}</h3>
-                <p className="mt-1 text-sm text-slate-500">{ngo.location || ngo.address || "Location not added"}</p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+              <div className="min-w-0">
+                <h3 className="safe-break font-black text-slate-950">{ngo.organizationName}</h3>
+                <p className="safe-break mt-1 text-sm text-slate-500">{ngo.location || ngo.address || "Location not added"}</p>
               </div>
               {ngo.isVerified ? <Badge className="bg-emerald-600">Verified</Badge> : ngo.kycStatus === "rejected" ? <Badge variant="destructive">Rejected</Badge> : <Badge variant="outline">Pending</Badge>}
             </div>
@@ -476,17 +624,25 @@ function ProfilePanel({ profileForm, setProfileForm, saveProfile, session }) {
   );
 }
 
-function ListCard({ title, items, render }) {
+function ListCard({ title, items, render, viewAllHref }) {
   return (
     <Card className="rounded-3xl border-slate-200 shadow-sm">
       <CardHeader><CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5" /> {title}</CardTitle></CardHeader>
       <CardContent className="space-y-3">
-        {items.map((item) => (
+        {items.slice(0, 4).map((item) => (
           <div key={item.id} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm font-semibold text-slate-800">
             {render(item)}
           </div>
         ))}
         {items.length === 0 && <p className="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">No records available.</p>}
+        {items.length > 4 && viewAllHref && (
+          <Button asChild variant="outline" className="w-full rounded-2xl font-bold">
+            <Link href={viewAllHref}>
+              View all
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { dashboardPathForRole, setAuthSession } from "@/lib/auth";
+import { apiUrl } from "@/lib/queryClient";
 import authImage from "@/photos/rescuee.jpg";
 
 const skillOptions = [
@@ -84,7 +85,7 @@ export default function AuthPage() {
     event.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch(apiUrl("/api/auth/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginForm)
@@ -111,7 +112,7 @@ export default function AuthPage() {
       });
       files.forEach((file) => payload.append("documents", file));
 
-      const response = await fetch("/api/auth/signup-profile", {
+      const response = await fetch(apiUrl("/api/auth/signup-profile"), {
         method: "POST",
         body: payload
       });
@@ -134,22 +135,29 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f3ef] px-4 py-24 text-slate-950">
-      <div className="mx-auto max-w-7xl">
-        <div className="relative overflow-hidden rounded-[2rem] border border-white/80 bg-white shadow-[0_30px_100px_rgba(15,23,42,0.12)]">
+    <div className="flex h-[100svh] items-center overflow-hidden bg-[#f4f3ef] px-3 pb-4 pt-20 text-slate-950 sm:px-4 lg:pb-6 lg:pt-20">
+      <div className="mx-auto flex h-full w-full max-w-7xl items-center">
+        <div className="relative max-h-full w-full overflow-hidden rounded-3xl border border-white/80 bg-white p-3 shadow-[0_30px_100px_rgba(15,23,42,0.12)] sm:rounded-[2rem] sm:p-4">
 
-          <div className="grid min-h-[760px] lg:grid-cols-2">
+          <div className="grid min-h-0 lg:h-[min(760px,calc(100svh-6rem))] lg:grid-cols-2">
             <section
-              className={`flex items-center px-6 py-16 transition-all duration-700 ease-out sm:px-12 lg:px-20 ${
+              className={`flex min-h-0 items-center px-4 py-6 transition-all duration-700 ease-out sm:px-8 lg:px-14 xl:px-16 ${
                 isLogin ? "lg:translate-x-full" : "lg:translate-x-0"
               }`}
             >
-              <div className="w-full max-w-xl mx-auto">
-                <div className="mb-8">
-                  <p className="text-sm font-semibold uppercase text-red-500">
-                    {isLogin ? "Secure login" : "Create verified account"}
-                  </p>
-                  <h1 className="mt-3 text-4xl font-bold tracking-normal text-slate-950">
+              <div className="mx-auto flex w-full max-w-xl flex-col lg:max-h-full">
+                <div className="mb-5 shrink-0 sm:mb-6">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-sm font-semibold uppercase text-red-500">
+                      {isLogin ? "Secure login" : "Create verified account"}
+                    </p>
+                    {!isLogin && (
+                      <button type="button" onClick={() => setMode("login")} className="w-fit text-sm font-semibold text-slate-950 underline underline-offset-4">
+                        Already have an account? Login
+                      </button>
+                    )}
+                  </div>
+                  <h1 className="mt-3 text-3xl font-bold tracking-normal text-slate-950 sm:text-4xl">
                     {isLogin ? "Login to ResQVerse" : "Create your account"}
                   </h1>
                   <p className="mt-3 text-sm text-slate-500">
@@ -188,8 +196,8 @@ export default function AuthPage() {
                     </p>
                   </form>
                 ) : (
-                  <form onSubmit={handleSignup} className="space-y-5">
-                    <div className="grid grid-cols-2 gap-3 rounded-2xl bg-slate-100 p-1">
+                  <form onSubmit={handleSignup} className="auth-form-scroll max-h-[calc(100svh-15rem)] space-y-5 overflow-y-auto pb-24 pr-2 lg:max-h-[540px] lg:pb-6 lg:pr-3">
+                    <div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1 sm:gap-3">
                       {["volunteer", "ngo"].map((role) => (
                         <button
                           key={role}
@@ -258,42 +266,36 @@ export default function AuthPage() {
                       {loading ? "Creating account..." : "Sign up"}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
-                    <p className="text-center text-sm text-slate-500">
-                      Already have an account?{" "}
-                      <button type="button" onClick={() => setMode("login")} className="font-semibold text-slate-950 underline">
-                        Login
-                      </button>
-                    </p>
                   </form>
                 )}
               </div>
             </section>
 
             <section
-              className={`relative min-h-[520px] overflow-hidden rounded-[2rem] transition-all duration-700 ease-out lg:m-4 ${
+              className={`relative hidden min-h-0 overflow-hidden rounded-3xl transition-all duration-700 ease-out sm:rounded-[1.5rem] lg:block ${
                 isLogin ? "lg:-translate-x-full" : "lg:translate-x-0"
               }`}
             >
               <img src={authImage} alt="Disaster relief volunteer coordination" className="absolute inset-0 h-full w-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/25 to-transparent" />
-              <div className="absolute left-6 right-6 top-6 flex justify-between gap-3">
-                <Pill icon={ShieldCheck} text="Verified profiles" />
-                <Pill icon={BadgeCheck} text="Secure documents" />
+              <div className="absolute left-4 right-4 top-4 flex flex-wrap justify-between gap-2 sm:left-6 sm:right-6 sm:top-6 sm:gap-3">
+                <Pill icon={ShieldCheck} text="Verified profiles" tone="green" />
+                <Pill icon={BadgeCheck} text="Secure documents" tone="blue" />
               </div>
-              <div className="absolute bottom-0 left-0 right-0 p-8 text-white sm:p-12">
+              <div className="absolute bottom-0 left-0 right-0 p-5 text-white sm:p-12">
                 <p className="mb-3 text-sm font-semibold uppercase text-white/80">{sideCopy.eyebrow}</p>
-                <h2 className="max-w-xl text-4xl font-bold leading-tight tracking-normal sm:text-5xl">
+                <h2 className="max-w-xl bg-gradient-to-r from-orange-400 via-orange-500 to-amber-300 bg-clip-text text-2xl font-bold leading-tight tracking-normal text-transparent drop-shadow-[0_8px_24px_rgba(251,146,60,0.22)] sm:text-4xl lg:text-5xl">
                   {sideCopy.title}
                 </h2>
                 <p className="mt-5 max-w-lg text-sm leading-6 text-white/80">{sideCopy.body}</p>
-                <div className="mt-8 grid max-w-lg grid-cols-2 gap-3">
-                  <div className="rounded-2xl border border-white/20 bg-white/15 p-4 backdrop-blur-md">
-                    <HeartHandshake className="mb-3 h-5 w-5" />
-                    <p className="text-sm font-semibold">Relief network</p>
+                <div className="mt-6 grid max-w-lg grid-cols-1 gap-3 sm:mt-8 sm:grid-cols-2">
+                  <div className="hero-glass-card hero-glass-green rounded-2xl p-4">
+                    <HeartHandshake className="mb-3 h-5 w-5 text-white" />
+                    <p className="text-sm font-semibold text-white">Relief network</p>
                   </div>
-                  <div className="rounded-2xl border border-white/20 bg-white/15 p-4 backdrop-blur-md">
-                    <MapPin className="mb-3 h-5 w-5" />
-                    <p className="text-sm font-semibold">Field ready</p>
+                  <div className="hero-glass-card hero-glass-blue rounded-2xl p-4">
+                    <MapPin className="mb-3 h-5 w-5 text-white" />
+                    <p className="text-sm font-semibold text-white">Field ready</p>
                   </div>
                 </div>
               </div>
@@ -420,9 +422,9 @@ function VolunteerFields({ form, setForm, toggleSkill }) {
   );
 }
 
-function Pill({ icon: Icon, text }) {
+function Pill({ icon: Icon, text, tone = "green" }) {
   return (
-    <div className="flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-4 py-2 text-xs font-semibold text-white backdrop-blur-md">
+    <div className={`hero-glass ${tone === "blue" ? "hero-glass-blue" : "hero-glass-green"} flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold text-white`}>
       <Icon className="h-4 w-4" />
       {text}
     </div>

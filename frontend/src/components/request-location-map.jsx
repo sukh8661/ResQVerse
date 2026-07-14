@@ -99,13 +99,13 @@ export default function RequestLocationMap({ requests = [], title = "Live Reques
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-        <div>
+      <div className="flex flex-col gap-3 border-b border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <div className="min-w-0">
           <h2 className="flex items-center gap-2 text-lg font-bold text-slate-950">
-            <MapPin className="h-5 w-5 text-red-500" />
+            <MapPin className="h-5 w-5 shrink-0 text-red-500" />
             {title}
           </h2>
-          <p className="text-sm text-slate-500">{points.length} request marker{points.length === 1 ? "" : "s"} with saved coordinates</p>
+          <p className="safe-break text-sm text-slate-500">{points.length} request marker{points.length === 1 ? "" : "s"} with saved coordinates</p>
         </div>
         {points.length === 0 && <AlertTriangle className="h-5 w-5 text-amber-500" />}
       </div>

@@ -6,13 +6,13 @@ function FloatingEmergency() {
   const handleEmergencyClick = () => {
     setLocation("/emergency");
   };
-  return <div className="fixed bottom-6 right-6 z-50">
+  return <div className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6">
       <Button
     onClick={handleEmergencyClick}
-    className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-700 text-white rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 emergency-pulse p-0"
+    className="h-14 w-14 rounded-full bg-gradient-to-br from-red-600 to-red-700 p-0 text-white shadow-2xl transition-all duration-300 hover:scale-110 hover:shadow-3xl sm:h-16 sm:w-16 emergency-pulse"
     data-testid="button-floating-emergency"
   >
-        <AlertTriangle className="h-8 w-8" />
+        <AlertTriangle className="h-7 w-7 sm:h-8 sm:w-8" />
       </Button>
     </div>;
 }

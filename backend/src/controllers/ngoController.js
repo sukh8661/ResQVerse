@@ -38,6 +38,16 @@ export const registerNgo = asyncHandler(async (req, res) => {
     kycStatus: "pending"
   });
 
+  user.profileRef = ngo._id;
+  user.profileModel = "Ngo";
+  user.profileSummary = {
+    organizationName: ngo.organizationName,
+    registrationId: ngo.registrationId,
+    kycStatus: ngo.kycStatus,
+    isVerified: ngo.isVerified
+  };
+  await user.save();
+
   res.status(201).json({
     token: createToken({ userId: String(user._id), role: user.role }),
     user: toJSON(user),

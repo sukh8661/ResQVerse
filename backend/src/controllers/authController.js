@@ -11,6 +11,21 @@ async function sessionForUser(user) {
   let profile = null;
   if (user.role === "volunteer") profile = await Volunteer.findOne({ user: user._id });
   if (user.role === "ngo") profile = await Ngo.findOne({ user: user._id });
+  if (!profile && user.profileRef) {
+    if (user.role === "volunteer") profile = await Volunteer.findById(user.profileRef);
+    if (user.role === "ngo") profile = await Ngo.findById(user.profileRef);
+  }
+  if (!profile && user.role === "ngo") {
+    profile = await Ngo.findOne({ $or: [{ email: user.email }, { phone: user.phone }].filter((item) => Object.values(item)[0]) });
+  }
+  if (!profile && user.role === "volunteer") {
+    profile = await Volunteer.findOne({ user: user._id });
+  }
+  if (profile && (!user.profileRef || String(user.profileRef) !== String(profile._id))) {
+    user.profileRef = profile._id;
+    user.profileModel = user.role === "ngo" ? "Ngo" : "Volunteer";
+    await user.save();
+  }
   return {
     token: createToken({ userId: String(user._id), role: user.role }),
     user: toJSON(user),

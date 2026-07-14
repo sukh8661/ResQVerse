@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import {
   Award,
   BadgeCheck,
@@ -35,6 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/queryClient";
 import { clearAuthSession, getAuthSession, setAuthSession } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
+import logo from "@/photos/Rescue_Logo_clean.png";
 
 const views = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -181,20 +182,20 @@ export default function VolunteerDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-100 pt-16">
+    <div className="min-h-screen bg-slate-100">
       <div className="flex">
-        <aside className="fixed bottom-0 left-0 top-16 z-30 hidden w-72 border-r border-slate-200 bg-white lg:block">
+        <aside className="fixed bottom-0 left-0 top-0 z-30 hidden w-72 border-r border-slate-200 bg-white lg:block">
           <div className="flex h-full flex-col">
-            <div className="border-b border-slate-100 p-6">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
-                  <ShieldCheck className="h-6 w-6" />
+            <div className="flex h-[136px] items-center border-b border-slate-100 px-6">
+              <Link href="/" className="group flex items-center gap-3">
+                <div className="-my-2 flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg">
+                  <img src={logo} alt="ResQVerse Logo" className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-slate-500">Volunteer panel</p>
-                  <h1 className="text-xl font-black text-slate-950">ResQVerse</h1>
+                  <h1 className="bg-gradient-to-r from-red-500 via-orange-500 to-red-600 bg-clip-text text-xl font-black leading-tight text-transparent">ResQVerse</h1>
+                  <p className="-mt-0.5 text-xs font-semibold text-slate-500">Unified Disaster Relief Platform</p>
                 </div>
-              </div>
+              </Link>
             </div>
 
             <nav className="flex-1 space-y-2 p-4">
@@ -227,12 +228,12 @@ export default function VolunteerDashboard() {
               <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                 <div>
                   <p className="text-sm font-semibold uppercase tracking-wide text-emerald-700">Volunteer operations</p>
-                  <h2 className="text-3xl font-black text-slate-950">Welcome, {user?.fullName || "Volunteer"}</h2>
+                  <h2 className="safe-break text-2xl font-black text-slate-950 sm:text-3xl">Welcome, {user?.fullName || "Volunteer"}</h2>
                   <p className="mt-1 text-slate-500">Update tasks step by step, track credits, and publish verified field stories.</p>
                 </div>
-                <div className="flex flex-wrap gap-2 lg:hidden">
+                <div className="mobile-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1 lg:hidden">
                   {views.map((item) => (
-                    <Button key={item.id} variant={activeView === item.id ? "default" : "outline"} size="sm" onClick={() => setActiveView(item.id)}>
+                    <Button key={item.id} variant={activeView === item.id ? "default" : "outline"} size="sm" className="shrink-0 rounded-2xl" onClick={() => setActiveView(item.id)}>
                       {item.label}
                     </Button>
                   ))}
@@ -339,25 +340,25 @@ function TaskBoard({ tasks, notes, setNotes, updateTask, isPending }) {
         return (
           <Card key={request.id} className="rounded-3xl border-slate-200 shadow-sm">
             <CardContent className="space-y-5 p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                <div className="min-w-0">
                   <h3 className="text-xl font-black text-slate-950">{request.title}</h3>
                   <p className="mt-1 text-sm leading-6 text-slate-600">{request.description || "No description added."}</p>
                 </div>
-                <Badge variant="outline" className={`capitalize ${statusTone(request.status)}`}>{readableStatus(request.status)}</Badge>
+                <Badge variant="outline" className={`w-fit capitalize ${statusTone(request.status)}`}>{readableStatus(request.status)}</Badge>
               </div>
 
-              <p className="flex items-center gap-2 text-sm text-slate-600">
-                <MapPin className="h-4 w-4 text-red-500" />
+              <p className="safe-break flex items-start gap-2 text-sm text-slate-600">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
                 {request.location}
               </p>
 
-              <div className="grid grid-cols-5 gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
                 {taskSteps.map((step, index) => {
                   const currentIndex = taskSteps.findIndex((item) => item.status === request.status);
                   const active = currentIndex >= index || request.status === "completed";
                   return (
-                    <div key={step.status} className={`rounded-2xl p-3 text-center text-xs font-bold ${active ? "bg-emerald-50 text-emerald-700" : "bg-slate-50 text-slate-400"}`}>
+                    <div key={step.status} className={`rounded-2xl p-2 text-center text-[11px] font-bold sm:p-3 sm:text-xs ${active ? "bg-emerald-50 text-emerald-700" : "bg-slate-50 text-slate-400"}`}>
                       <step.icon className="mx-auto mb-1 h-4 w-4" />
                       {step.activeLabel}
                     </div>
@@ -406,11 +407,11 @@ function CertificatePanel({ user, credits, target, unlocked, ngo }) {
   return (
     <Card className="overflow-hidden rounded-3xl border-slate-200 shadow-sm">
       <CardContent className="p-0">
-        <div className={`p-8 ${unlocked ? "bg-gradient-to-br from-amber-50 to-white" : "bg-slate-100"}`}>
-          <div className="mx-auto max-w-3xl rounded-3xl border-4 border-double border-amber-300 bg-white p-8 text-center shadow-sm">
+        <div className={`p-4 sm:p-8 ${unlocked ? "bg-gradient-to-br from-amber-50 to-white" : "bg-slate-100"}`}>
+          <div className="mx-auto max-w-3xl rounded-3xl border-4 border-double border-amber-300 bg-white p-5 text-center shadow-sm sm:p-8">
             {unlocked ? <Award className="mx-auto h-16 w-16 text-amber-500" /> : <Lock className="mx-auto h-16 w-16 text-slate-400" />}
-            <p className="mt-5 text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Certificate of Appreciation</p>
-            <h2 className="mt-3 text-3xl font-black text-slate-950">{unlocked ? user?.fullName || "Volunteer" : "Locked Certificate"}</h2>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 sm:text-sm sm:tracking-[0.3em]">Certificate of Appreciation</p>
+            <h2 className="safe-break mt-3 text-2xl font-black text-slate-950 sm:text-3xl">{unlocked ? user?.fullName || "Volunteer" : "Locked Certificate"}</h2>
             <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-slate-600">
               {unlocked
                 ? `Awarded for crossing ${target} verified relief credits with ${ngo?.organizationName || "ResQVerse partners"}.`
@@ -466,9 +467,9 @@ function ProfilePanel({ profileForm, setProfileForm, saveProfile, volunteer, ngo
 
 function Summary({ label, value }) {
   return (
-    <div className="flex justify-between gap-4 rounded-2xl bg-slate-50 p-3">
+    <div className="flex flex-col gap-1 rounded-2xl bg-slate-50 p-3 sm:flex-row sm:justify-between sm:gap-4">
       <span className="font-semibold text-slate-500">{label}</span>
-      <span className="text-right font-bold text-slate-950">{value}</span>
+      <span className="safe-break font-bold text-slate-950 sm:text-right">{value}</span>
     </div>
   );
 }

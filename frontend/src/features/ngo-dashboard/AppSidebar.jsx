@@ -1,10 +1,11 @@
 import { Link, useLocation } from "wouter";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { BarChart3, ClipboardList, HandCoins, LayoutDashboard, LogOut, Package, RadioTower, ShieldCheck, User, Users } from "lucide-react";
+import { BarChart3, HandCoins, LayoutDashboard, LogOut, Package, RadioTower, ShieldCheck, User, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { clearAuthSession, getAuthSession, setAuthSession } from "@/lib/auth";
+import logo from "@/photos/Rescue_Logo_clean.png";
 
 export const ngoNavItems = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -44,20 +45,20 @@ export function AppSidebar() {
   };
 
   return (
-    <aside className="fixed bottom-0 left-0 top-16 z-30 hidden w-72 border-r border-slate-200 bg-white lg:block">
+    <aside className="fixed bottom-0 left-0 top-0 z-30 hidden w-72 border-r border-slate-200 bg-white lg:block">
       <div className="flex h-full flex-col">
-        <div className="border-b border-slate-100 p-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-700">
-              <ClipboardList className="h-6 w-6" />
+        <div className="flex h-[136px] items-center border-b border-slate-100 px-6">
+          <Link href="/" className="group flex items-center gap-3">
+            <div className="-my-2 flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg">
+              <img src={logo} alt="ResQVerse Logo" className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-slate-500">NGO command</p>
-              <h2 className="truncate text-xl font-black text-slate-950">
-                {organizationName}
+              <h2 className="bg-gradient-to-r from-red-500 via-orange-500 to-red-600 bg-clip-text text-xl font-black leading-tight text-transparent">
+                ResQVerse
               </h2>
+              <p className="-mt-0.5 text-xs font-semibold text-slate-500">Unified Disaster Relief Platform</p>
             </div>
-          </div>
+          </Link>
         </div>
 
         <nav className="flex-1 space-y-2 p-4">

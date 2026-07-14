@@ -32,7 +32,7 @@ function Hero() {
     }, 5e3);
     return () => clearInterval(timer);
   }, [heroSlides.length]);
-  return <section className="relative overflow-hidden h-screen flex flex-col" data-testid="section-hero">
+  return <section className="relative flex min-h-[100svh] flex-col overflow-hidden" data-testid="section-hero">
       {
     /* Hero Background with Slideshow - Fixed Height */
   }
@@ -57,12 +57,12 @@ function Hero() {
       {
     /* Hero Content - Adjusted alignment */
   }
-      <div className="relative z-10 flex-1 flex flex-col justify-start pt-28 md:pt-40">
+      <div className="relative z-10 flex flex-1 flex-col justify-start pt-24 md:pt-40">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-5xl mx-auto">
             <div className="mb-8">
               <h1
-    className="text-4xl md:text-6xl font-extrabold text-white mb-8 transition-all duration-1000 leading-[1.1] drop-shadow-2xl tracking-tight"
+    className="mb-6 text-3xl font-extrabold leading-[1.1] tracking-tight text-white drop-shadow-2xl transition-all duration-1000 sm:text-4xl md:mb-8 md:text-6xl"
     data-testid="hero-title"
     key={currentSlide}
     style={{ textShadow: "3px 3px 6px rgba(0,0,0,0.8)" }}
@@ -91,11 +91,11 @@ function Hero() {
             {
     /* 3 Big Action Buttons */
   }
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-12">
+            <div className="mx-auto mb-12 grid max-w-6xl grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
               <Link href="/emergency" data-testid="link-emergency">
                 <Button
     size="lg"
-    className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 px-8 py-3 text-base font-bold h-20"
+    className="hero-glass-button hero-glass-red h-16 w-full px-6 py-3 text-base font-bold text-white transition-all duration-300 hover:scale-105 sm:h-20 sm:px-8"
     data-testid="button-emergency"
   >
                   <div className="flex flex-col items-center gap-1">
@@ -107,7 +107,7 @@ function Hero() {
               <Link href="/volunteer" data-testid="link-volunteer">
                 <Button
     size="lg"
-    className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 px-8 py-3 text-base font-bold h-20"
+    className="hero-glass-button hero-glass-blue h-16 w-full px-6 py-3 text-base font-bold text-white transition-all duration-300 hover:scale-105 sm:h-20 sm:px-8"
     data-testid="button-volunteer"
   >
                   <div className="flex flex-col items-center gap-1">
@@ -119,7 +119,7 @@ function Hero() {
               <Link href="/donate" data-testid="link-donate">
                 <Button
     size="lg"
-    className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 px-8 py-3 text-base font-bold h-20"
+    className="hero-glass-button hero-glass-green h-16 w-full px-6 py-3 text-base font-bold text-white transition-all duration-300 hover:scale-105 sm:h-20 sm:px-8"
     data-testid="button-donate"
   >
                   <div className="flex flex-col items-center gap-1">

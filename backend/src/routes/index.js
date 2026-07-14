@@ -26,6 +26,7 @@ router.get("/ngo/dashboard", protect, requireRole("ngo"), ngoDashboard.dashboard
 router.patch("/ngo/requests/:id/accept", protect, requireRole("ngo"), ngoDashboard.acceptRequest);
 router.patch("/ngo/requests/:id/status", protect, requireRole("ngo"), ngoDashboard.updateRequestStatus);
 router.patch("/ngo/requests/:id/assign", protect, requireRole("ngo"), ngoDashboard.assignVolunteer);
+router.post("/ngo/fund-requests", protect, requireRole("ngo"), ngoDashboard.createFundRequest);
 router.post("/ngo/resources", protect, requireRole("ngo"), ngoDashboard.createResource);
 router.patch("/ngo/resources/:id", protect, requireRole("ngo"), ngoDashboard.updateResource);
 router.delete("/ngo/resources/:id", protect, requireRole("ngo"), ngoDashboard.deleteResource);
@@ -58,6 +59,7 @@ router.patch("/admin/ngos/:id/verify", protect, requireRole("admin"), admin.veri
 router.get("/admin/volunteer-applications", protect, requireRole("admin"), admin.listVolunteerApplications);
 router.patch("/admin/volunteers/:id/assign-ngo", protect, requireRole("admin"), admin.assignNgoToVolunteer);
 router.post("/admin/allocations", protect, requireRole("admin"), admin.createAllocation);
+router.patch("/admin/fund-requests/:id/review", protect, requireRole("admin"), admin.reviewFundRequest);
 router.get("/admin/ngo-operations", admin.ngoOperations);
 
 router.get("/resources", resources.listResources);

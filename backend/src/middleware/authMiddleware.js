@@ -17,6 +17,18 @@ export const protect = asyncHandler(async (req, _res, next) => {
   req.user = user;
   if (user.role === "volunteer") req.profile = await Volunteer.findOne({ user: user._id });
   if (user.role === "ngo") req.profile = await Ngo.findOne({ user: user._id });
+  if (!req.profile && user.profileRef) {
+    if (user.role === "volunteer") req.profile = await Volunteer.findById(user.profileRef);
+    if (user.role === "ngo") req.profile = await Ngo.findById(user.profileRef);
+  }
+  if (!req.profile && user.role === "ngo") {
+    req.profile = await Ngo.findOne({ $or: [{ email: user.email }, { phone: user.phone }].filter((item) => Object.values(item)[0]) });
+  }
+  if (req.profile && (!user.profileRef || String(user.profileRef) !== String(req.profile._id))) {
+    user.profileRef = req.profile._id;
+    user.profileModel = user.role === "ngo" ? "Ngo" : "Volunteer";
+    await user.save();
+  }
   next();
 });
 

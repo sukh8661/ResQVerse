@@ -1,5 +1,6 @@
 import EmergencyRequest from "../models/EmergencyRequest.js";
 import FundAllocation from "../models/FundAllocation.js";
+import FundRequest from "../models/FundRequest.js";
 import Resource from "../models/Resource.js";
 import Volunteer from "../models/Volunteer.js";
 import { ApiError } from "../utils/apiError.js";
@@ -15,12 +16,13 @@ function requireNgoProfile(req) {
 }
 
 async function buildDashboardPayload(ngo) {
-  const [requests, liveRequests, volunteers, resources, allocations] = await Promise.all([
+  const [requests, liveRequests, volunteers, resources, allocations, fundRequests] = await Promise.all([
     EmergencyRequest.find({ assignedNgo: ngo._id }).sort({ updatedAt: -1 }).populate("assignedVolunteer"),
     EmergencyRequest.find({ status: "pending", assignedNgo: { $exists: false } }).sort({ urgency: 1, createdAt: -1 }),
     Volunteer.find({ ngo: ngo._id }).populate("user").sort({ verificationStatus: 1, createdAt: -1 }),
     Resource.find({ ngo: ngo._id }).sort({ type: 1 }),
-    FundAllocation.find({ ngo: ngo._id }).populate("donation").sort({ createdAt: -1 })
+    FundAllocation.find({ ngo: ngo._id }).populate("donation").sort({ createdAt: -1 }),
+    FundRequest.find({ ngo: ngo._id }).populate("allocation").sort({ createdAt: -1 })
   ]);
 
   const assignedRequests = requests.filter((request) => request.assignedVolunteer);
@@ -39,7 +41,9 @@ async function buildDashboardPayload(ngo) {
       availableVolunteers: volunteers.filter((volunteer) => volunteer.status === "available").length,
       totalFunds,
       availableUnits,
-      distributedUnits
+      distributedUnits,
+      pendingFundRequests: fundRequests.filter((request) => request.status === "pending").length,
+      approvedFundRequests: fundRequests.filter((request) => ["approved", "partially_approved"].includes(request.status)).length
     },
     requests: listJSON(requests),
     liveRequests: listJSON(liveRequests),
@@ -52,6 +56,10 @@ async function buildDashboardPayload(ngo) {
     allocations: allocations.map((allocation) => ({
       ...toJSON(allocation),
       donation: toJSON(allocation.donation)
+    })),
+    fundRequests: fundRequests.map((request) => ({
+      ...toJSON(request),
+      allocation: toJSON(request.allocation)
     }))
   };
 }
@@ -59,6 +67,26 @@ async function buildDashboardPayload(ngo) {
 export const dashboard = asyncHandler(async (req, res) => {
   const ngo = requireNgoProfile(req);
   res.json(await buildDashboardPayload(ngo));
+});
+
+export const createFundRequest = asyncHandler(async (req, res) => {
+  const ngo = requireNgoProfile(req);
+  const amountRequested = Number(req.body.amountRequested);
+  if (!amountRequested || amountRequested <= 0 || !req.body.purpose) {
+    throw new ApiError(400, "Amount and purpose are required");
+  }
+
+  const fundRequest = await FundRequest.create({
+    ngo: ngo._id,
+    requestedBy: req.user?._id,
+    amountRequested,
+    purpose: req.body.purpose,
+    urgency: req.body.urgency || "medium",
+    details: req.body.details || ""
+  });
+
+  broadcast("ngo_fund_request_created", { fundRequest: toJSON(fundRequest), ngo: toJSON(ngo) });
+  res.status(201).json({ fundRequest: toJSON(fundRequest) });
 });
 
 export const acceptRequest = asyncHandler(async (req, res) => {

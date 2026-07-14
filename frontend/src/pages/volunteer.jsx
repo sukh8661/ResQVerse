@@ -98,13 +98,13 @@ export default function Volunteer() {
         />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,6,23,0.95),rgba(15,23,42,0.76),rgba(15,23,42,0.42))]" />
 
-        <div className="relative mx-auto grid max-w-7xl gap-8 px-4 pb-14 pt-28 sm:px-6 lg:grid-cols-[1fr_420px] lg:px-8 lg:pb-16 lg:pt-32">
-          <div className="flex min-h-[420px] flex-col justify-center">
-            <div className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur">
+        <div className="relative mx-auto grid max-w-7xl gap-8 px-4 pb-14 pt-24 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:px-8 lg:pb-16 lg:pt-32">
+          <div className="flex min-h-[360px] flex-col justify-center sm:min-h-[420px]">
+            <div className="hero-glass hero-glass-green mb-5 inline-flex w-fit items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold">
               <HeartHandshake className="h-4 w-4 text-emerald-300" />
               Field volunteer network
             </div>
-            <h1 className="max-w-3xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl" data-testid="text-volunteer-title">
+            <h1 className="max-w-3xl text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl" data-testid="text-volunteer-title">
               Join the people who move relief faster.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-slate-200 sm:text-lg">
@@ -112,14 +112,14 @@ export default function Volunteer() {
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <Link href="/register">
-                <Button className="h-12 rounded-2xl bg-emerald-500 px-6 font-bold text-white hover:bg-emerald-600">
+              <Link href="/register" className="w-full sm:w-auto">
+                <Button className="hero-glass-button hero-glass-green h-12 w-full rounded-2xl px-6 font-bold text-white sm:w-auto">
                   Create volunteer profile
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="/login">
-                <Button variant="outline" className="h-12 rounded-2xl border-white/25 bg-white/10 px-6 font-bold text-white hover:bg-white/20 hover:text-white">
+              <Link href="/login" className="w-full sm:w-auto">
+                <Button variant="outline" className="hero-glass-button h-12 w-full rounded-2xl px-6 font-bold text-white hover:text-white sm:w-auto">
                   Volunteer login
                 </Button>
               </Link>
@@ -131,7 +131,7 @@ export default function Volunteer() {
                 { label: "Live requests", value: activeRequests.length, icon: Activity },
                 { label: "Tasks completed", value: completedTasks, icon: ShieldCheck }
               ].map((item) => (
-                <div key={item.label} className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
+                <div key={item.label} className="hero-glass-card hero-glass-green rounded-2xl p-4">
                   <item.icon className="mb-3 h-5 w-5 text-emerald-300" />
                   <div className="text-2xl font-bold">{item.value}</div>
                   <div className="text-xs font-medium uppercase tracking-wide text-slate-300">{item.label}</div>
@@ -140,8 +140,8 @@ export default function Volunteer() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur-md">
-            <div className="rounded-2xl bg-white p-5 text-slate-950 shadow-2xl">
+          <div className="hero-glass hero-glass-green rounded-3xl p-4">
+            <div className="rounded-2xl border border-white/35 bg-white/90 p-5 text-slate-950 shadow-2xl backdrop-blur-xl">
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
                   <Award className="h-6 w-6" />
@@ -170,13 +170,13 @@ export default function Volunteer() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1.35fr)_420px] lg:px-8 lg:py-10">
+      <section className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,420px)] lg:px-8 lg:py-10">
         <div className="space-y-6">
           <Card className="overflow-hidden rounded-3xl border-slate-200 shadow-sm">
             <CardContent className="p-0">
               <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
                 <div className="bg-slate-950 p-6 text-white sm:p-8">
-                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-200">
+                  <div className="hero-glass hero-glass-green mb-5 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-100">
                     <CalendarCheck className="h-4 w-4" />
                     How volunteering works
                   </div>
@@ -300,13 +300,21 @@ export default function Volunteer() {
                       <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-sm font-black text-slate-950">
                         {index + 1}
                       </div>
-                      <span className="max-w-[190px] truncate text-sm font-bold text-slate-800">{volunteer.user?.fullName || "Volunteer"}</span>
+                      <span className="max-w-[min(190px,48vw)] truncate text-sm font-bold text-slate-800">{volunteer.user?.fullName || "Volunteer"}</span>
                     </div>
                     <Badge className="bg-emerald-600">{volunteer.creditPoints || 0} pts</Badge>
                   </div>
                 ))}
                 {leaderboard.length === 0 && <p className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">Leaderboard will update as volunteers complete tasks.</p>}
               </div>
+              {leaderboard.length > 4 && (
+                <Button asChild variant="outline" className="mt-4 w-full rounded-2xl border-emerald-200 font-bold text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800">
+                  <Link href="/records/volunteers">
+                    View all volunteers
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
             </CardContent>
           </Card>
         </aside>
@@ -322,7 +330,7 @@ export default function Volunteer() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          {fieldStories.slice(0, 6).map((story) => (
+          {fieldStories.slice(0, 4).map((story) => (
             <Card key={story.id} className="rounded-3xl border-slate-200 shadow-sm">
               <CardContent className="p-5">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-lg font-black text-emerald-700">
@@ -345,6 +353,16 @@ export default function Volunteer() {
             </Card>
           )}
         </div>
+        {fieldStories.length > 4 && (
+          <div className="mt-6 flex justify-center">
+            <Button asChild variant="outline" className="rounded-2xl border-emerald-200 bg-white font-bold text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800">
+              <Link href="/records/stories">
+                View all field stories
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        )}
       </section>
     </main>
   );

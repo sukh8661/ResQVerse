@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { AlertTriangle, ArrowUpRight, HandCoins, Headphones, RadioTower, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import RequestLocationMap from "@/components/request-location-map";
@@ -69,7 +71,7 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {requests.slice(0, 6).map((request) => (
+            {requests.slice(0, 4).map((request) => (
               <div key={request.id} className="rounded-3xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -97,6 +99,14 @@ export default function Dashboard() {
               </div>
             ))}
             {requests.length === 0 && <Empty text="No accepted requests yet. Accept live requests to start operations." />}
+            {requests.length > 4 && (
+              <Button asChild variant="outline" className="w-full rounded-2xl font-bold">
+                <Link href="/dashboard/requests">
+                  View all requests
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            )}
           </CardContent>
         </Card>
 
@@ -104,7 +114,7 @@ export default function Dashboard() {
           <Card className="rounded-3xl border-slate-200 shadow-sm">
             <CardHeader><CardTitle>Resource Health</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              {resources.slice(0, 5).map((resource) => {
+              {resources.slice(0, 4).map((resource) => {
                 const percent = resource.quantity ? Math.round((resource.available / resource.quantity) * 100) : 0;
                 return (
                   <div key={resource.id}>
@@ -117,6 +127,14 @@ export default function Dashboard() {
                 );
               })}
               {resources.length === 0 && <Empty text="No resources added yet." />}
+              {resources.length > 4 && (
+                <Button asChild variant="outline" className="w-full rounded-2xl font-bold">
+                  <Link href="/dashboard/resources">
+                    View all resources
+                    <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
             </CardContent>
           </Card>
 
@@ -133,6 +151,14 @@ export default function Dashboard() {
                 </div>
               ))}
               {allocations.length === 0 && <Empty text="No funds allocated to your NGO yet." />}
+              {allocations.length > 4 && (
+                <Button asChild variant="outline" className="w-full rounded-2xl font-bold">
+                  <Link href="/dashboard/funds">
+                    View all allocations
+                    <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
             </CardContent>
           </Card>
         </div>

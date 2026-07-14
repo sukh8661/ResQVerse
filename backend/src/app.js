@@ -8,7 +8,8 @@ const app = express();
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || env.clientOrigins.includes(origin)) {
+    const normalizedOrigin = origin?.replace(/\/+$/, "");
+    if (!origin || env.clientOrigins.includes(normalizedOrigin)) {
       callback(null, true);
       return;
     }

@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { Activity, AlertTriangle, Clock, HeartPulse, MapPin, Phone, Radio, ShieldCheck, Users } from "lucide-react";
+import { Link } from "wouter";
+import { Activity, AlertTriangle, ArrowRight, Clock, HeartPulse, MapPin, Phone, Radio, ShieldCheck, Users } from "lucide-react";
 import EmergencyForm from "@/components/emergency-form";
 import RequestLocationMap from "@/components/request-location-map";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 function getTimeAgo(dateString) {
@@ -42,13 +44,13 @@ export default function EmergencyRequest() {
         />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,6,23,0.96),rgba(15,23,42,0.72),rgba(15,23,42,0.45))]" />
 
-        <div className="relative mx-auto grid max-w-7xl gap-8 px-4 pb-12 pt-28 sm:px-6 lg:grid-cols-[1fr_420px] lg:px-8 lg:pb-16 lg:pt-32">
-          <div className="flex min-h-[420px] flex-col justify-center">
-            <div className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur">
+        <div className="relative mx-auto grid max-w-7xl gap-8 px-4 pb-12 pt-24 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:px-8 lg:pb-16 lg:pt-32">
+          <div className="flex min-h-[360px] flex-col justify-center sm:min-h-[420px]">
+            <div className="hero-glass hero-glass-red mb-5 inline-flex w-fit items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold">
               <Radio className="h-4 w-4 text-red-300" />
               24/7 relief coordination
             </div>
-            <h1 className="max-w-3xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl" data-testid="text-emergency-title">
+            <h1 className="max-w-3xl text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl" data-testid="text-emergency-title">
               Request emergency help without confusion.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-slate-200 sm:text-lg">
@@ -61,7 +63,7 @@ export default function EmergencyRequest() {
                 { label: "Critical cases", value: criticalCount, icon: AlertTriangle },
                 { label: "Mapped locations", value: mappedRequests, icon: MapPin }
               ].map((item) => (
-                <div key={item.label} className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
+                <div key={item.label} className="hero-glass-card hero-glass-red rounded-2xl p-4">
                   <item.icon className="mb-3 h-5 w-5 text-red-300" />
                   <div className="text-2xl font-bold">{item.value}</div>
                   <div className="text-xs font-medium uppercase tracking-wide text-slate-300">{item.label}</div>
@@ -70,15 +72,15 @@ export default function EmergencyRequest() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur-md">
-            <div className="rounded-2xl bg-white p-5 text-slate-950 shadow-2xl">
+          <div className="hero-glass hero-glass-red rounded-3xl p-4">
+            <div className="rounded-2xl border border-white/35 bg-white/90 p-5 text-slate-950 shadow-2xl backdrop-blur-xl">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-50 text-red-600">
                   <Phone className="h-5 w-5" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-semibold text-slate-500">Emergency hotline</p>
-                  <p className="text-2xl font-black">+91 9874563210</p>
+                  <p className="safe-break text-xl font-black sm:text-2xl">+91 9874563210</p>
                 </div>
               </div>
               <div className="mt-5 grid gap-3">
@@ -101,7 +103,7 @@ export default function EmergencyRequest() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1.4fr)_420px] lg:px-8 lg:py-10">
+      <section className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,420px)] lg:px-8 lg:py-10">
         <EmergencyForm />
 
         <aside className="space-y-6">
@@ -116,7 +118,7 @@ export default function EmergencyRequest() {
               </div>
 
               <div className="max-h-[520px] space-y-3 overflow-y-auto pr-1">
-                {activeRequests.slice(0, 8).map((request) => (
+                {activeRequests.slice(0, 4).map((request) => (
                   <div key={request.id} className="rounded-2xl border border-slate-200 bg-white p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
@@ -141,6 +143,14 @@ export default function EmergencyRequest() {
                   </div>
                 )}
               </div>
+              {activeRequests.length > 4 && (
+                <Button asChild variant="outline" className="mt-4 w-full rounded-2xl border-slate-200 font-bold text-slate-700 hover:bg-slate-50">
+                  <Link href="/records/requests">
+                    View all requests
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
             </CardContent>
           </Card>
 

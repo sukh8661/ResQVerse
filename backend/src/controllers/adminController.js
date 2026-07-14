@@ -1,6 +1,7 @@
 import Donation from "../models/Donation.js";
 import EmergencyRequest from "../models/EmergencyRequest.js";
 import FundAllocation from "../models/FundAllocation.js";
+import FundRequest from "../models/FundRequest.js";
 import Ngo from "../models/Ngo.js";
 import Resource from "../models/Resource.js";
 import User from "../models/User.js";
@@ -10,12 +11,13 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { listJSON, toJSON } from "../utils/mapper.js";
 
 export const overview = asyncHandler(async (_req, res) => {
-  const [donations, allocations, ngos, volunteers, requests] = await Promise.all([
+  const [donations, allocations, ngos, volunteers, requests, fundRequests] = await Promise.all([
     Donation.find({ status: "successful" }).sort({ createdAt: -1 }),
     FundAllocation.find().sort({ createdAt: -1 }),
     Ngo.find().sort({ createdAt: -1 }),
     Volunteer.find(),
-    EmergencyRequest.find()
+    EmergencyRequest.find(),
+    FundRequest.find().populate("ngo allocation").sort({ createdAt: -1 })
   ]);
 
   const totalDonationAmount = donations.reduce((sum, donation) => sum + Number(donation.amount || 0), 0);
@@ -30,13 +32,19 @@ export const overview = asyncHandler(async (_req, res) => {
       ngos: ngos.length,
       volunteers: volunteers.length,
       pendingVolunteerApplications: volunteers.filter((item) => item.verificationStatus === "pending").length,
-      requests: requests.length
+      requests: requests.length,
+      pendingFundRequests: fundRequests.filter((request) => request.status === "pending").length
     },
     donations: listJSON(donations),
     allocations: listJSON(allocations).map((allocation) => ({
       ...allocation,
       ngoId: allocation.ngo ? String(allocation.ngo) : undefined,
       donationId: allocation.donation ? String(allocation.donation) : undefined
+    })),
+    fundRequests: fundRequests.map((request) => ({
+      ...toJSON(request),
+      ngo: toJSON(request.ngo),
+      allocation: toJSON(request.allocation)
     }))
   });
 });
@@ -137,6 +145,7 @@ export const createAllocation = asyncHandler(async (req, res) => {
     ngo: req.body.ngoId,
     amount,
     purpose: req.body.purpose,
+    notes: req.body.notes || undefined,
     createdBy: req.user?._id
   });
 
@@ -144,15 +153,90 @@ export const createAllocation = asyncHandler(async (req, res) => {
     await Donation.findByIdAndUpdate(req.body.donationId, { $inc: { allocatedAmount: amount } });
   }
 
+  if (req.body.fundRequestId) {
+    const fundRequest = await FundRequest.findById(req.body.fundRequestId);
+    if (fundRequest) {
+      fundRequest.amountApproved = Number(fundRequest.amountApproved || 0) + amount;
+      fundRequest.status = fundRequest.amountApproved >= fundRequest.amountRequested ? "approved" : "partially_approved";
+      fundRequest.adminNote = req.body.notes || fundRequest.adminNote;
+      fundRequest.reviewedBy = req.user?._id;
+      fundRequest.reviewedAt = new Date();
+      fundRequest.allocation = allocation._id;
+      await fundRequest.save();
+    }
+  }
+
   res.status(201).json({ allocation: toJSON(allocation) });
 });
 
+export const reviewFundRequest = asyncHandler(async (req, res) => {
+  const fundRequest = await FundRequest.findById(req.params.id).populate("ngo");
+  if (!fundRequest) throw new ApiError(404, "Fund request not found");
+  if (fundRequest.status !== "pending") {
+    throw new ApiError(400, "This fund request has already been reviewed");
+  }
+
+  const decision = req.body.decision;
+  const amountApproved = Number(req.body.amountApproved || 0);
+  const adminNote = req.body.adminNote || "";
+
+  if (!["approve", "partial", "reject"].includes(decision)) {
+    throw new ApiError(400, "Decision must be approve, partial, or reject");
+  }
+  if (decision !== "reject" && amountApproved <= 0) {
+    throw new ApiError(400, "Approved amount must be greater than zero");
+  }
+  if (decision === "partial" && amountApproved >= fundRequest.amountRequested) {
+    throw new ApiError(400, "Use approve when granting the full requested amount");
+  }
+
+  let allocation = null;
+  if (decision !== "reject") {
+    allocation = await FundAllocation.create({
+      donation: req.body.donationId || undefined,
+      ngo: fundRequest.ngo._id,
+      amount: decision === "approve" ? fundRequest.amountRequested : amountApproved,
+      purpose: fundRequest.purpose,
+      notes: adminNote || (decision === "approve"
+        ? "Full requested amount approved."
+        : "Partial amount approved based on available relief funds."),
+      createdBy: req.user?._id
+    });
+
+    if (req.body.donationId) {
+      await Donation.findByIdAndUpdate(req.body.donationId, { $inc: { allocatedAmount: allocation.amount } });
+    }
+  }
+
+  fundRequest.amountApproved = allocation ? allocation.amount : 0;
+  fundRequest.status = decision === "reject" ? "rejected" : decision === "approve" ? "approved" : "partially_approved";
+  fundRequest.adminNote = adminNote || (decision === "reject"
+    ? "Request could not be approved at this time."
+    : decision === "approve"
+      ? "Full requested amount approved."
+      : "Partial amount approved.");
+  fundRequest.reviewedBy = req.user?._id;
+  fundRequest.reviewedAt = new Date();
+  fundRequest.allocation = allocation?._id;
+  await fundRequest.save();
+
+  const updated = await FundRequest.findById(fundRequest._id).populate("ngo allocation");
+  res.json({
+    fundRequest: {
+      ...toJSON(updated),
+      ngo: toJSON(updated.ngo),
+      allocation: toJSON(updated.allocation)
+    }
+  });
+});
+
 export const ngoOperations = asyncHandler(async (_req, res) => {
-  const [requests, volunteers, resources, ngos] = await Promise.all([
+  const [requests, volunteers, resources, ngos, fundRequests] = await Promise.all([
     EmergencyRequest.find().sort({ createdAt: -1 }),
     Volunteer.find().populate("user").sort({ createdAt: -1 }),
     Resource.find().sort({ createdAt: -1 }),
-    Ngo.find().sort({ createdAt: -1 })
+    Ngo.find().sort({ createdAt: -1 }),
+    FundRequest.find().populate("ngo allocation").sort({ createdAt: -1 })
   ]);
   const statusCounts = requests.reduce((acc, request) => {
     acc[request.status] = (acc[request.status] || 0) + 1;
@@ -170,12 +254,18 @@ export const ngoOperations = asyncHandler(async (_req, res) => {
       criticalRequests: requests.filter((request) => request.urgency === "critical").length,
       volunteersAssigned: volunteers.filter((volunteer) => volunteer.status === "assigned").length,
       resourcesAvailable,
+      pendingFundRequests: fundRequests.filter((request) => request.status === "pending").length,
       averageResponseTime: "18 min"
     },
     charts: { statusCounts, distribution },
     requests: listJSON(requests),
     volunteers: volunteers.map((volunteer) => ({ ...toJSON(volunteer), user: toJSON(volunteer.user) })),
     resources: listJSON(resources),
-    ngos: listJSON(ngos)
+    ngos: listJSON(ngos),
+    fundRequests: fundRequests.map((request) => ({
+      ...toJSON(request),
+      ngo: toJSON(request.ngo),
+      allocation: toJSON(request.allocation)
+    }))
   });
 });

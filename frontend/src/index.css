@@ -73,6 +73,28 @@
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   }
 
+  html,
+  body,
+  #root {
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+  }
+
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    max-width: 100%;
+  }
+
   /* Typography Enhancements */
   h1 {
     @apply text-4xl font-bold text-foreground tracking-tight;
@@ -320,6 +342,106 @@
     @apply flex flex-col sm:flex-row gap-4 items-center;
   }
 
+  .safe-break {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .mobile-scrollbar {
+    scrollbar-width: thin;
+  }
+
+  .auth-form-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(248 113 113 / 0.55) transparent;
+  }
+
+  .auth-form-scroll::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .auth-form-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .auth-form-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgb(248 113 113 / 0.75), rgb(251 146 60 / 0.75));
+    border-radius: 999px;
+  }
+
+  .hero-glass {
+    background:
+      linear-gradient(135deg, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0.08)),
+      linear-gradient(180deg, rgb(var(--glass-accent, 255 255 255) / 0.12), transparent);
+    border: 1px solid rgb(255 255 255 / 0.28);
+    box-shadow:
+      0 22px 70px rgb(0 0 0 / 0.22),
+      inset 0 1px 0 rgb(255 255 255 / 0.32);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+  }
+
+  .hero-glass-card {
+    background:
+      radial-gradient(circle at 18% 12%, rgb(var(--glass-accent, 255 255 255) / 0.22), transparent 36%),
+      linear-gradient(135deg, rgb(255 255 255 / 0.18), rgb(255 255 255 / 0.07));
+    border: 1px solid rgb(255 255 255 / 0.24);
+    box-shadow:
+      0 18px 55px rgb(0 0 0 / 0.2),
+      inset 0 1px 0 rgb(255 255 255 / 0.28);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+  }
+
+  .hero-glass-button {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 18% 10%, rgb(var(--glass-accent, 255 255 255) / 0.42), transparent 42%),
+      linear-gradient(135deg, rgb(255 255 255 / 0.26), rgb(255 255 255 / 0.09));
+    border: 1px solid rgb(255 255 255 / 0.34);
+    box-shadow:
+      0 18px 50px var(--glass-glow, rgb(0 0 0 / 0.18)),
+      inset 0 1px 0 rgb(255 255 255 / 0.38);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+  }
+
+  .hero-glass-button::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 0%, rgb(255 255 255 / 0.26) 38%, transparent 62%);
+    opacity: 0;
+    transform: translateX(-70%);
+    transition: opacity 220ms ease, transform 520ms ease;
+  }
+
+  .hero-glass-button:hover::before {
+    opacity: 1;
+    transform: translateX(70%);
+  }
+
+  .hero-glass-red {
+    --glass-accent: 248 113 113;
+    --glass-glow: rgb(239 68 68 / 0.26);
+  }
+
+  .hero-glass-blue {
+    --glass-accent: 96 165 250;
+    --glass-glow: rgb(59 130 246 / 0.26);
+  }
+
+  .hero-glass-green {
+    --glass-accent: 52 211 153;
+    --glass-glow: rgb(16 185 129 / 0.26);
+  }
+
+  .hero-glass-amber {
+    --glass-accent: 251 191 36;
+    --glass-glow: rgb(245 158 11 / 0.24);
+  }
+
   /* --- NGO DASHBOARD STATUS BACKGROUNDS (added) --- */
   .bg-danger\/10 {
     background-color: rgb(239 68 68 / 0.1);
@@ -440,6 +562,11 @@
   .btn-secondary,
   .btn-emergency {
     @apply w-full justify-center;
+  }
+
+  .leaflet-control-attribution {
+    max-width: calc(100vw - 4rem);
+    white-space: normal;
   }
 }
 

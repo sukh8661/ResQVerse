@@ -19,6 +19,7 @@ import NgoDashboardPage from "@/pages/ngo-dashboard";
 import Login from "@/pages/login";
 import VolunteerDashboard from "@/pages/volunteer-dashboard";
 import AdminDashboard from "@/pages/admin-dashboard";
+import RecordsPage from "@/pages/records";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -72,8 +73,9 @@ function Router() {
     location.startsWith("/ngo-connect") ||
     location.startsWith("/volunteer-dashboard") ||
     location.startsWith("/admin-dashboard");
+  const isAuthPage = location === "/login" || location === "/register";
   return <div className="min-h-screen bg-background flex flex-col">
-      <Header />
+      {!isDashboard && <Header />}
       <main className="flex-1">
         <Switch>
           {
@@ -89,6 +91,7 @@ function Router() {
           <Route path="/donation" component={Donate} />
           <Route path="/register" component={Register} />
           <Route path="/login" component={Login} />
+          <Route path="/records/:kind" component={RecordsPage} />
           <Route path="/volunteer-dashboard" component={VolunteerDashboard} />
           <Route path="/admin-dashboard" component={AdminDashboard} />
 
@@ -117,8 +120,8 @@ function Router() {
           <Route component={NotFound} />
         </Switch>
       </main>
-      {!isDashboard && <Footer />}
-      <FloatingEmergency />
+      {!isDashboard && !isAuthPage && <Footer />}
+      {!isAuthPage && <FloatingEmergency />}
     </div>;
 }
 function App() {

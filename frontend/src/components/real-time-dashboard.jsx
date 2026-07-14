@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
   AlertTriangle,
+  ArrowRight,
   Users,
   Activity,
   MapPin,
@@ -115,7 +117,7 @@ function RealTimeDashboard() {
             {requests.length === 0 ? <div className="text-center text-muted-foreground py-8" data-testid="text-no-requests">
                 <AlertTriangle className="h-12 w-12 mx-auto mb-2 opacity-50" />
                 <p>No active emergency requests</p>
-              </div> : requests.slice(0, 10).map((request) => <div
+              </div> : requests.slice(0, 4).map((request) => <div
     key={request.id}
     className="border border-border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer"
     data-testid={`request-item-${request.id}`}
@@ -143,6 +145,14 @@ function RealTimeDashboard() {
                   </div>
                 </div>)}
           </div>
+          {requests.length > 4 && (
+            <Button asChild variant="outline" className="mt-4 w-full rounded-2xl font-bold">
+              <Link href="/records/requests">
+                View all requests
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          )}
         </CardContent>
       </Card>
 
@@ -161,7 +171,7 @@ function RealTimeDashboard() {
             {volunteers.length === 0 ? <div className="text-center text-muted-foreground py-8" data-testid="text-no-volunteers">
                 <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
                 <p>No volunteers available</p>
-              </div> : volunteers.slice(0, 10).map((volunteer, index) => <div
+              </div> : volunteers.slice(0, 4).map((volunteer, index) => <div
     key={volunteer.id}
     className="flex items-center space-x-3 p-3 border border-border rounded-lg hover:bg-muted/50 transition-colors"
     data-testid={`volunteer-item-${volunteer.id}`}
@@ -182,6 +192,14 @@ function RealTimeDashboard() {
                   </Button>
                 </div>)}
           </div>
+          {volunteers.length > 4 && (
+            <Button asChild variant="outline" className="mt-4 w-full rounded-2xl font-bold">
+              <Link href="/records/volunteers">
+                View all volunteers
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          )}
         </CardContent>
       </Card>
 
@@ -195,7 +213,7 @@ function RealTimeDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {resources.map((resource) => <div key={resource.name} className="space-y-2" data-testid={`resource-${resource.name.toLowerCase().replace(/\s+/g, "-")}`}>
+            {resources.slice(0, 4).map((resource) => <div key={resource.name} className="space-y-2" data-testid={`resource-${resource.name.toLowerCase().replace(/\s+/g, "-")}`}>
                 <div className="flex justify-between text-sm">
                   <span className="text-foreground">{resource.name}</span>
                   <span className={`font-medium ${resource.percentage >= 70 ? "text-emergency-green" : resource.percentage >= 40 ? "text-secondary" : "text-primary"}`}>
@@ -205,6 +223,14 @@ function RealTimeDashboard() {
                 <Progress value={resource.percentage} className="h-2" />
               </div>)}
             {resources.length === 0 && <p className="text-sm text-muted-foreground">No resources have been added yet.</p>}
+            {resources.length > 4 && (
+              <Button asChild variant="outline" className="w-full rounded-2xl font-bold">
+                <Link href="/records/resources">
+                  View all resources
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            )}
           </div>
 
           <div className="mt-6 p-4 bg-muted rounded-lg">
@@ -243,7 +269,7 @@ function RealTimeDashboard() {
                   </p>
                 </div>}
 
-              {donations.slice(0, 3).map((donation) => <div key={donation.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+              {donations.slice(0, 4).map((donation) => <div key={donation.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                   <div className="flex items-center gap-3">
                     <Heart className="h-5 w-5 text-primary" />
                     <div>
@@ -258,6 +284,14 @@ function RealTimeDashboard() {
                   </span>
                 </div>)}
             </div>
+            {donations.length > 4 && (
+              <Button asChild variant="outline" className="mt-4 w-full rounded-2xl font-bold">
+                <Link href="/records/donations">
+                  View all donations
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>

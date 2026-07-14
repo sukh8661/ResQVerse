@@ -1,5 +1,6 @@
 import { useState } from "react";
 import NewsTicker from "../components/news-ticker";
+import SplitText from "../components/SplitText";
 import {
   Card
 } from "../components/ui/card";
@@ -29,7 +30,7 @@ import {
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useI18n } from "../lib/i18n";
-import logo from "@/photos/Rescue_Logo.jpg";
+import logo from "@/photos/Rescue_Logo_clean.png";
 import homeHeroImage from "@/photos/rescuee.jpg";
 function Home() {
   const { t } = useI18n();
@@ -68,63 +69,129 @@ function Home() {
     description: "Donation category stored"
   }));
   const recentActivity = [
-    ...(operations?.requests || []).slice(0, 3).map((request) => ({
+    ...(operations?.requests || []).map((request) => ({
       action: `${request.type} request ${request.status}`,
       location: request.location,
       amount: `${request.peopleCount || 1} people`,
-      time: new Date(request.createdAt).toLocaleString()
+      time: new Date(request.createdAt).toLocaleString(),
+      createdAt: request.createdAt
     })),
-    ...(adminData?.allocations || []).slice(0, 3).map((allocation) => ({
+    ...(adminData?.allocations || []).map((allocation) => ({
       action: `Funds allocated for ${allocation.purpose}`,
       location: allocation.ngoId,
       amount: `Rs ${Number(allocation.amount || 0).toLocaleString()}`,
-      time: new Date(allocation.createdAt).toLocaleString()
+      time: new Date(allocation.createdAt).toLocaleString(),
+      createdAt: allocation.createdAt
     }))
-  ].slice(0, 5);
+  ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   const campaignProgress = currentCampaign ? parseFloat(currentCampaign.raisedAmount) / parseFloat(currentCampaign.targetAmount) * 100 : 0;
-  let [showContent, setShowContent] = useState(false);
+  const [showContent] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
   useGSAP(() => {
-    const tl = gsap.timeline();
-    tl.to(".rescuelogo", {
-      duration: 2,
-      ease: "Power4.easeInOut",
-      transformOrigin: "50% 50%"
-    }).to(".rescuelogo", {
-      scale: 50,
-      duration: 2,
-      delay: -1.8,
-      ease: "Expo.easeInOut",
-      transformOrigin: "50% 50%",
-      opacity: 0,
-      onUpdate: function() {
-        if (this.progress() >= 0.9) {
-          document.querySelector(".svg").remove();
-          setShowContent(true);
-          this.kill();
-        }
-      }
+    const splashLogo = document.querySelector(".splash-logo");
+    const splashWordmark = document.querySelector(".splash-wordmark");
+    const splashOverlay = document.querySelector(".splash-overlay");
+    const splashCurtain = document.querySelector(".splash-curtain");
+    const pageHeader = document.querySelector("header");
+    const heroTitleLines = gsap.utils.toArray(".home-hero-title > span");
+    const heroCopy = document.querySelector(".home-hero-copy");
+    if (!splashLogo || !splashWordmark || !splashOverlay || !splashCurtain) return;
+
+    const tl = gsap.timeline({
+      defaults: { ease: "power3.out" },
+      onComplete: () => setShowSplash(false)
     });
+
+    gsap.set(splashLogo, { y: 150, scale: 0.74, opacity: 0, filter: "blur(0px)", transformOrigin: "50% 50%" });
+    gsap.set(splashWordmark, { opacity: 1, filter: "blur(0px)" });
+    gsap.set(splashCurtain, { yPercent: 0 });
+    if (pageHeader) {
+      gsap.set(pageHeader, { y: -22, opacity: 0, filter: "blur(10px)" });
+    }
+    gsap.set(heroTitleLines, { y: 64, opacity: 0, filter: "blur(14px)" });
+    gsap.set(heroCopy, { y: 34, opacity: 0, filter: "blur(10px)" });
+
+    tl.to(splashLogo, { y: 0, scale: 1.85, opacity: 1, duration: 0.9, ease: "back.out(1.3)" })
+      .to(splashLogo, { scale: 2, duration: 0.34, ease: "power2.out" })
+      .to(splashLogo, { scale: 1.9, duration: 0.32, ease: "power2.inOut" })
+      .to(splashWordmark, { y: -18, opacity: 0, filter: "blur(8px)", duration: 0.46, ease: "power2.in" }, "+=1.25")
+      .add("sceneReveal")
+      .to(splashLogo, {
+        y: 0,
+        scale: 1.36,
+        opacity: 0,
+        filter: "blur(10px)",
+        duration: 0.58,
+        ease: "power3.inOut"
+      }, "sceneReveal")
+      .to(splashCurtain, {
+        yPercent: -100,
+        duration: 1.12,
+        ease: "power4.inOut"
+      }, "sceneReveal+=0.12")
+      .to(pageHeader, {
+        y: 0,
+        opacity: 1,
+        filter: "blur(0px)",
+        duration: 0.56,
+        ease: "power3.out"
+      }, "sceneReveal+=0.78")
+      .to(heroTitleLines, {
+        y: 0,
+        opacity: 1,
+        filter: "blur(0px)",
+        duration: 0.78,
+        stagger: 0.09,
+        ease: "power4.out"
+      }, "sceneReveal+=0.88")
+      .to(heroCopy, {
+        y: 0,
+        opacity: 1,
+        filter: "blur(0px)",
+        duration: 0.64,
+        ease: "power3.out"
+      }, "sceneReveal+=1.08");
   });
   return <div>
-      <div className="svg flex items-center justify-center fixed top-0 left-0 z-[100] w-full h-screen overflow-hidden bg-[#FFFFFF]">
-        <img
-    className="rescuelogo"
-    src={logo}
-    alt="Rescue Logo"
-    style={{
-      width: "50%",
-      height: "50%",
-      objectFit: "contain",
-      transform: "translateY(-5%)"
-    }}
-  />
-      </div>
+      {showSplash && <div className="splash-overlay pointer-events-none fixed left-0 top-0 z-[100] flex h-[100svh] w-full items-center justify-center overflow-hidden">
+        <div className="splash-curtain absolute inset-0 bg-white" />
+        <div className="relative z-10 flex w-full flex-col items-center justify-center text-center">
+          <img
+            className="splash-logo"
+            src={logo}
+            alt="Rescue Logo"
+            style={{
+              width: "clamp(126px, 16vw, 210px)",
+              height: "clamp(126px, 16vw, 210px)",
+              objectFit: "contain"
+            }}
+          />
+          <div className="splash-wordmark mt-28 flex w-full justify-center px-4 sm:mt-36 lg:mt-44">
+            <SplitText
+              tag="h1"
+              text="RESQVERSE"
+              className="mx-auto text-center font-black uppercase tracking-[0.16em] text-[#ff6a1a] drop-shadow-[0_22px_50px_rgba(249,115,22,0.36)] text-[clamp(3.6rem,11vw,9.5rem)]"
+              delay={58}
+              duration={0.72}
+              ease="power4.out"
+              splitType="chars"
+              from={{ opacity: 0, y: 72, rotateX: -70, filter: "blur(12px)" }}
+              to={{ opacity: 1, y: 0, rotateX: 0, filter: "blur(0px)" }}
+              threshold={0}
+              rootMargin="0px"
+              textAlign="center"
+              animateOnMount
+              style={{ fontFamily: '"Manrope", "Inter", "Satoshi", system-ui, sans-serif', lineHeight: 0.9 }}
+            />
+          </div>
+        </div>
+      </div>}
 
       {showContent && <div data-testid="page-home" className="pt-0">
           {
     /* UPDATED HERO SECTION WITH DONATION PAGE STYLING */
   }
-          <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+          <section className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-4 py-20 sm:px-6 lg:px-8">
             {
     /* Background Image */
   }
@@ -141,13 +208,13 @@ function Home() {
             {
     /* Hero Content - Using Donation Page Styling */
   }
-            <div className="relative z-10 text-center text-white px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div className="relative z-10 mx-auto max-w-7xl text-center text-white">
               {
     /* Main Heading - Donation Page Style */
   }
-              <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold leading-tight mb-8 drop-shadow-2xl text-white">
-                Unified Platform for{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-500">
+              <h1 className="home-hero-title mb-6 text-4xl font-black leading-[0.95] text-white drop-shadow-2xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl">
+                <span className="block">Unified Platform for</span>
+                <span className="block bg-gradient-to-r from-orange-400 via-orange-500 to-amber-300 bg-clip-text text-transparent">
                   Disaster Relief
                 </span>
               </h1>
@@ -155,57 +222,13 @@ function Home() {
               {
     /* Subtitle - Donation Page Typography */
   }
-              <div className="mb-10 max-w-5xl mx-auto">
-                <p className="text-xl md:text-2xl lg:text-3xl leading-relaxed text-white drop-shadow-lg mb-4">
-                  <span className="text-lg md:text-xl lg:text-2xl text-gray-100">
+              <div className="home-hero-copy mx-auto max-w-5xl">
+                <p className="mb-4 text-base leading-relaxed text-white drop-shadow-lg sm:text-xl md:text-2xl">
+                  <span className="text-base text-gray-100 sm:text-lg lg:text-xl">
                     Connecting survivors, volunteers, and NGOs when every second
                     counts.
                   </span>
                 </p>
-              </div>
-
-              {
-    /* Action Buttons - Clean version without arrow marks */
-  }
-              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center max-w-6xl mx-auto">
-                {
-    /* Request Help Button */
-  }
-                <Link href="/emergency">
-                  <div className="group relative">
-                    <Button className="relative bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-10 py-6 text-lg font-bold rounded-2xl shadow-2xl transform transition-all duration-300 group-hover:scale-105 group-hover:shadow-3xl border-2 border-white/20 backdrop-blur-sm min-w-[250px] h-16">
-                      <AlertTriangle className="mr-3 h-6 w-6" />
-                      Request Help
-                    </Button>
-                    <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
-                  </div>
-                </Link>
-
-                {
-    /* Volunteer Button - ARROW REMOVED */
-  }
-                <Link href="/volunteer">
-                  <div className="group relative">
-                    <Button className="relative bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-10 py-6 text-lg font-bold rounded-2xl shadow-2xl transform transition-all duration-300 group-hover:scale-105 group-hover:shadow-3xl border-2 border-white/20 backdrop-blur-sm min-w-[250px] h-16">
-                      <Users className="mr-3 h-6 w-6" />
-                      Volunteer
-                    </Button>
-                    <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
-                  </div>
-                </Link>
-
-                {
-    /* Donate Button */
-  }
-                <Link href="/donate">
-                  <div className="group relative">
-                    <Button className="relative bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-10 py-6 text-lg font-bold rounded-2xl shadow-2xl transform transition-all duration-300 group-hover:scale-105 group-hover:shadow-3xl border-2 border-white/20 backdrop-blur-sm min-w-[250px] h-16">
-                      <Heart className="mr-3 h-6 w-6" />
-                      Donate
-                    </Button>
-                    <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
-                  </div>
-                </Link>
               </div>
             </div>
           </section>
@@ -397,7 +420,7 @@ function Home() {
               {
     /* Donation Stats Overview */
   }
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+              <div className="mb-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
                 <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-2xl border border-green-200">
                   <DollarSign className="h-8 w-8 text-green-600 mb-3" />
                   <div className="text-2xl lg:text-3xl font-bold text-green-800">
@@ -517,7 +540,7 @@ function Home() {
                       </span>
                     </div>
                     <div className="space-y-4">
-                    {recentActivity.map((activity, idx) => <div
+                    {recentActivity.slice(0, 4).map((activity, idx) => <div
     key={idx}
     className="bg-white p-4 rounded-xl border"
   >
@@ -541,6 +564,14 @@ function Home() {
                           No recent response activity yet.
                         </div>}
                     </div>
+                    {recentActivity.length > 4 && (
+                      <Button asChild variant="outline" className="mt-5 w-full rounded-2xl border-green-200 bg-white/80 font-bold text-green-700 hover:bg-green-50 hover:text-green-800">
+                        <Link href="/records/activity">
+                          View all activity
+                          <ArrowRight className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    )}
                     <div className="mt-6 p-4 bg-green-100 rounded-xl border border-green-200">
                       <div className="flex items-center">
                         <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
